@@ -1,0 +1,95 @@
+services:
+  # MongoDB for Development
+  mongodb_dev:
+    image: mongodb/mongodb-community-server:latest
+    container_name: multi_db_nodejs_express_with_typescript_template__mongo_dev
+    ports:
+      - '27017:27017'
+    networks:
+      - backend_net
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: your-user-name
+      MONGO_INITDB_ROOT_PASSWORD: your-password
+      MONGO_INITDB_DATABASE: multi_db_nodejs_express_with_typescript_template__db_dev
+    volumes:
+      - mongo_data_dev:/data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MongoDB for Staging
+  mongodb_staging:
+    image: mongodb/mongodb-community-server:latest
+    container_name: multi_db_nodejs_express_with_typescript_template__mongo_staging
+    ports:
+      - '27018:27017'
+    networks:
+      - backend_net
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: your-user-name
+      MONGO_INITDB_ROOT_PASSWORD: your-password
+      MONGO_INITDB_DATABASE: multi_db_nodejs_express_with_typescript_template__db_staging
+    volumes:
+      - mongo_data_staging:/data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MongoDB for Production
+  mongodb_prod:
+    image: mongodb/mongodb-community-server:latest
+    container_name: multi_db_nodejs_express_with_typescript_template__mongo_prod
+    ports:
+      - '27019:27017'
+    networks:
+      - backend_net
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: your-user-name
+      MONGO_INITDB_ROOT_PASSWORD: your-password
+      MONGO_INITDB_DATABASE: multi_db_nodejs_express_with_typescript_template__db_prod
+    volumes:
+      - mongo_data_prod:/data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Node.js/Express App Server
+  # app_server:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: multi_db_nodejs_express_with_typescript_template__app
+  #   ports:
+  #     - "5000:5000"
+  #   depends_on:
+  #     mongodb_dev:
+  #       condition: service_healthy
+  #     mongodb_staging:
+  #       condition: service_healthy
+  #     mongodb_prod:
+  #       condition: service_healthy
+  #   environment:
+  #     MONGO_DEV_URI: mongodb://your-user-name:your-password@mongodb_dev:27017/multi_db_nodejs_express_with_typescript_template__db_dev
+  #     MONGO_STAGING_URI: mongodb://your-user-name:your-password@mongodb_staging:27017/multi_db_nodejs_express_with_typescript_template__db_staging
+  #     MONGO_PROD_URI: mongodb://your-user-name:your-password@mongodb_prod:27017/multi_db_nodejs_express_with_typescript_template__db_prod
+  #   volumes:
+  #     - .:/app
+  #   working_dir: /app
+  #   command: npm run dev
+  #   networks:
+  #     - backend_net
+
+volumes:
+  mongo_data_dev:
+  mongo_data_staging:
+  mongo_data_prod:
+
+networks:
+  backend_net:
+    driver: bridge
