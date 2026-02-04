@@ -4,15 +4,15 @@
   "description": "A fully-typed backend(NodeJs) project server template",
   "type": "module",
   "scripts": {
-    "start": "bunx prisma generate && node app.js",
+    "start": "npx prisma generate && node app.js",
     "start-build": "node ./build/app.js",
     "dev": "tsc --noEmit && tsx watch ./src/app.ts",
     "build": "tsc",
-    "lint": "bunx eslint .",
-    "lint-staged": "bunx lint-staged",
-    "format": "bunx prettier . --write",
+    "lint": "npx eslint .",
+    "lint-staged": "npx lint-staged",
+    "format": "npx prettier . --write",
     "prepare": "husky",
-    "postinstall": "bunx prisma generate"
+    "postinstall": "npx prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^6.7.0",
