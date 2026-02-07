@@ -1,10 +1,8 @@
-import { PrismaClient } from '../../../../generated/prisma/index.js';
+import { prisma } from '../../../lib/prisma.js';
 import { customServiceErrorHandler } from '../../../utils/errorHandlers/customServiceErrorHandler.js';
 import type { UserSpecs } from '../schema/user.schema.js';
 // import log from '../../../utils/logger.js';
 // import { userModel } from '../models/user.model.js';
-
-const prisma = new PrismaClient();
 
 export async function updateUser__postgres({ userId, email, requestBody }: { userId?: number; email?: string; requestBody: UserSpecs }) {
   try {

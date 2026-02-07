@@ -1,8 +1,6 @@
 // import { userModel } from '../models/user.model.js';
-import { PrismaClient } from '../../../../generated/prisma/index.js';
 import { customServiceErrorHandler } from '../../../utils/errorHandlers/customServiceErrorHandler.js';
-
-const prisma = new PrismaClient();
+import { prisma } from '../../../lib/prisma.js';
 
 export async function findUser__postgres({ userId, email }: { userId?: number; email?: string }) {
   try {

@@ -1,10 +1,8 @@
-import { PrismaClient } from '../../../../generated/prisma/index.js';
+import { prisma } from '../../../lib/prisma.js';
 import type { UserSpecs } from '../../user/schema/user.schema.js';
 import { customServiceErrorHandler } from '../../../utils/errorHandlers/customServiceErrorHandler.js';
 // import { userModel } from '../../user/models/user.model.js';
 // import log from '../../../utils/logger.js';
-
-const prisma = new PrismaClient();
 
 export async function createUser__postgres(data: { user: UserSpecs }) {
   try {
