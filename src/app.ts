@@ -6,7 +6,8 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import log from './utils/logger.js';
 import { URL } from 'url';
-
+import { createServer } from 'http';
+import { createWebSocketServer, shutdownWebSocketServer } from './lib/webSocketCore/index.js';
 // DB imports
 import connectMongoDb from './db/connect-mongodb.js';
 import connectPostgres from './db/connect-postgres.js';
@@ -102,12 +103,109 @@ const start = async () => {
         \nPostgreSQL connected successfully \n........................................................`
     );
 
-    // console.log(process.env.JWT_SECRET);
-    app.listen(port, () => log.info(`Server is listening on port ${port}...`));
+    // Create HTTP server
+    const httpServer = createServer(app);
+
+    // Initialize WebSocket server
+    const wss = createWebSocketServer(httpServer, {
+      path: process.env.WS_PATH || '/ws',
+      heartbeatInterval: Number(process.env.WS_HEARTBEAT_INTERVAL) || 30000,
+
+      onConnection: async (ws, request) => {
+        log.info(`WebSocket client connected from ${request.socket.remoteAddress}`);
+
+        // Send welcome message
+        ws.send(
+          JSON.stringify({
+            type: 'welcome',
+            payload: {
+              message: 'Connected to Multi-DB Server WebSocket',
+              connectionId: ws.id,
+              timestamp: Date.now()
+            }
+          })
+        );
+      },
+
+      onMessage: async (ws, message) => {
+        log.info(`Received WebSocket message - Type: ${message.type}, Connection: ${ws.id}`);
+
+        switch (message.type) {
+          case 'ping':
+            ws.send(JSON.stringify({ type: 'pong', timestamp: Date.now() }));
+            break;
+
+          case 'echo':
+            ws.send(
+              JSON.stringify({
+                type: 'echo_response',
+                payload: message.payload,
+                timestamp: Date.now()
+              })
+            );
+            break;
+
+          default:
+            log.warn(`Unhandled message type: ${message.type}`);
+            ws.send(
+              JSON.stringify({
+                type: 'error',
+                payload: { message: `Unknown message type: ${message.type}` }
+              })
+            );
+        }
+      },
+
+      onClose: async (ws, code, reason) => {
+        log.info(`WebSocket connection closed - ID: ${ws.id}, Code: ${code}, Reason: ${reason.toString()}`);
+      },
+
+      onError: async (ws, error) => {
+        log.error(`WebSocket error - ID: ${ws.id}, Error: ${error.message}`);
+      }
+    });
+
+    // Start server
+    httpServer.listen(port, () => {
+      log.info(
+        `...................................\nWebSocket server is listening on port ${port}\nWebSocket: ws://localhost:${port}/ws\n\nHTTP server is listening on port ${port}\nHTTP: http://localhost:${port}\n\nEnvironment: ${
+          process.env.DEPLOY_ENV ? process.env.DEPLOY_ENV : 'development'
+        }\n........................................................`
+      );
+    });
+
+    // Graceful shutdown
+    const gracefulShutdown = async (signal: string) => {
+      log.info(`${signal} signal received: closing server gracefully`);
+
+      try {
+        // Shutdown WebSocket server first
+        await shutdownWebSocketServer(wss, Number(process.env.WS_SHUTDOWN_TIMEOUT) || 10000);
+
+        // Close HTTP server
+        httpServer.close(() => {
+          log.info('HTTP server closed');
+          process.exit(0);
+        });
+
+        // Force exit after timeout
+        setTimeout(() => {
+          log.error('Forced shutdown after timeout');
+          process.exit(1);
+        }, 15000);
+      } catch (error) {
+        log.error(`Error during shutdown: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        process.exit(1);
+      }
+    };
+
+    process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+    process.on('SIGINT', () => gracefulShutdown('SIGINT'));
   } catch (error) {
     if (error instanceof Error) {
       log.error(error.message);
     }
+    process.exit(1);
   }
 };
 
