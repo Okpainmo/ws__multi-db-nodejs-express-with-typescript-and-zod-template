@@ -7,12 +7,9 @@
 
 import type { Request, Response } from 'express';
 import type { UserSpecs } from '../../user/schema/user.schema.js';
-// import { createUser__mongo } from '../lib/mongo__auth.createUser.service.js';
-import { createUser__postgres } from '../lib/postgres__auth.createUser.service.js';
-// import { findUser__mongo } from '../../user/lib/mongo__user.findUser.service.js';
-import { findUser__postgres } from '../../user/lib/postgres__user.findUser.service.js';
-// import { updateUser__mongo } from '../../user/lib/mongo__user.updateUser.service.js';
-import { updateUser__postgres } from '../../user/lib/postgres__user.updateUser.service.js';
+import { createUser } from '../lib/auth.createUser.service.js';
+import { findUser } from '../../user/lib/user.findUser.service.js';
+import { updateUser } from '../../user/lib/user.updateUser.service.js';
 import { errorHandler__400, errorHandler__500 } from '../../../utils/errorHandlers/codedErrorHandlers.js';
 import { hashingHandler } from '../../../utils/hashingHandler.js';
 import { deployAuthCookie } from '../../../utils/cookieDeployHandlers.js';
@@ -48,8 +45,7 @@ type AuthTokenSpecs = {
 
 export const registerUser = async (req: Request<{}, ResponseSpecs, inSpecs>, res: Response<ResponseSpecs>) => {
   try {
-    // const existingUser = await findUser__mongo({ email: req.body.email });
-    const existingUser = await findUser__postgres({ email: req.body.email });
+    const existingUser = await findUser({ email: req.body.email });
 
     const hashedPassword = await hashingHandler({ stringToHash: req.body.password });
 
@@ -64,8 +60,7 @@ export const registerUser = async (req: Request<{}, ResponseSpecs, inSpecs>, res
     Always set the admin as below, to ensure that no user tricks the system and set a false admin.
     You'll then need to create an end-point for setting admins.
     */
-    const registeredUser = await createUser__postgres({ user: { ...req.body, isAdmin: false } });
-    // const registeredUser = await createUser__mongo({ user: { ...req.body, isAdmin: false } });
+    const registeredUser = await createUser({ user: { ...req.body, isAdmin: false } });
 
     if (registeredUser && registeredUser.email && registeredUser.id) {
       const authTokens = await generateTokens({ tokenType: 'auth', user: { id: registeredUser.id, email: registeredUser.email } });
@@ -74,13 +69,7 @@ export const registerUser = async (req: Request<{}, ResponseSpecs, inSpecs>, res
       const { accessToken, refreshToken, authCookie } = authTokens as AuthTokenSpecs;
 
       if (accessToken && refreshToken && authCookie) {
-        // await updateUser__mongo({
-        //   userId: registeredUser.id,
-        //   email: registeredUser.email,
-        //   requestBody: { accessToken: accessToken, refreshToken: refreshToken }
-        // });
-
-        await updateUser__postgres({
+        await updateUser({
           email: registeredUser.email,
           requestBody: {
             accessToken: accessToken,

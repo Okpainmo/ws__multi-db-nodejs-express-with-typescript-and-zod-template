@@ -7,8 +7,7 @@
 
 import type { Request, Response } from 'express';
 import type { UserSpecs } from '../schema/user.schema.js';
-// import { findUser__mongo } from '../../user/lib/mongo__user.findUser.service.js';
-import { findUser__postgres } from '../../user/lib/postgres__user.findUser.service.js';
+import { findUser } from '../lib/user.findUser.service.js';
 import { errorHandler__500, errorHandler__404 } from '../../../utils/errorHandlers/codedErrorHandlers.js';
 // import log from '../../../utils/logger.js';
 
@@ -29,8 +28,7 @@ export const getUserProfile = async (req: Request<{ userId: string | number }, R
   try {
     const { userId } = req.params;
 
-    // const userToFind = await findUser__mongo({userId: userId as string });
-    const userToFind = await findUser__postgres({ userId: Number(userId) });
+    const userToFind = await findUser({ userId });
 
     if (!userToFind) {
       errorHandler__404(`user with id: '${userId}' not found or does not exist`, res);

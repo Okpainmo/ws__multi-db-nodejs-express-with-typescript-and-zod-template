@@ -7,10 +7,8 @@
  */
 
 import type { Request, Response } from 'express';
-// import { updateUser__mongo } from '../../user/lib/mongo__user.updateUser.service.js';
-import { updateUser__postgres } from '../../user/lib/postgres__user.updateUser.service.js';
-// import { findUser__mongo } from '../../user/lib/mongo__user.findUser.service.js';
-import { findUser__postgres } from '../../user/lib/postgres__user.findUser.service.js';
+import { findUser } from '../../user/lib/user.findUser.service.js';
+import { updateUser } from '../../user/lib/user.updateUser.service.js';
 import { errorHandler__404, errorHandler__500, errorHandler__403, errorHandler__400 } from '../../../utils/errorHandlers/codedErrorHandlers.js';
 import type { UserSpecs } from '../../user/schema/user.schema.js';
 // import log from '../../../utils/logger.js';
@@ -37,8 +35,7 @@ export const deactivateUser = async (req: Request<{ userId?: string | number }, 
     // receive admin userData from previous middleware
     const adminUser = req?.userData?.user;
 
-    // const userToDeactivate = await findUser__mongo({userId: userId as string });
-    const userToDeactivate = await findUser__postgres({ userId: Number(userId) });
+    const userToDeactivate = await findUser({ userId });
 
     if (!userToDeactivate) {
       errorHandler__404(`User with id: '${userId}' not found or does not exist`, res);
@@ -56,8 +53,7 @@ export const deactivateUser = async (req: Request<{ userId?: string | number }, 
       return;
     }
 
-    const deactivatedUser = await updateUser__postgres({ userId: Number(userId), requestBody: { isActive: false } });
-    //   const deactivatedUser = await updateUser__mongo({ userId: userId, requestBody: { isActive: false } });
+    const deactivatedUser = await updateUser({ userId, requestBody: { isActive: false } });
 
     if (deactivatedUser && req?.userData?.newUserAccessToken && req?.userData?.newUserRefreshToken) {
       res.status(200).json({
