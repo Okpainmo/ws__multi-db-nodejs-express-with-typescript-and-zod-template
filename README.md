@@ -1,8 +1,16 @@
-This template, is a highly flexible, function-based and domain-driven-development(DDD)-inspired NodeJs/Express(with Typescript) template.
+# ws\_\_multi-db-nodejs-express-with-typescript-and-zod-template
+
+This template, is dedicated web-socket version of the [multi-db-nodejs-express-with-typescript-and-zod-template](https://github.com/Okpainmo/multi-db-nodejs-express-with-typescript-and-zod-template) - a highly flexible, function-based, domain-driven-development(DDD)-inspired NodeJs/Express(with Typescript) template.
+
+> **Before you generate a project with the template, endeavour to check step No. 3 in the [How To Use This Template](https://github.com/Okpainmo/multi-db-nodejs-express-with-typescript-and-zod-template?tab=readme-ov-file#how-to-use-this-template) section of this README file, and learn how to properly handle git-ignoring the environmental variables.**
+
+> **The [Debugging](https://github.com/Okpainmo/multi-db-nodejs-express-with-typescript-and-zod-template?tab=readme-ov-file#debugging) section will also be helpful in case you run into some tricky errors.**
+
+## Features.
 
 > In a way, it honestly feels like a crime to me, for anyone to still go about building systems with vanilla Javascript. This template is **fully typed 💪**.
 
-- It is set up to utilize Zod for data validation, and to support multiple-database types(MongoDB and PostgreSQL).
+- It is set up to utilize a centralized, Zod-validated configuration system that supports multiple database types (MongoDB and PostgreSQL) and multiple working environments.
 
 - To provide usage guidance, the template contains build samples/demonstrations of how to use both databases.
 
@@ -12,19 +20,44 @@ This template, is a highly flexible, function-based and domain-driven-developmen
 
 - Subsequently, this README file, will contain instructions, on how to fully unplug any of the database setups that you do not wish to use, while retaining the other.
 
+- It also comes with a standard WebSocket implementation(using the `ws` NodeJs library), to enable real-time communication between the client and the server.
+
 I created this with so much love(❤️) for myself, and engineering teams I lead/work on. Enough of bootstrapping a project from scratch whenever I need to set up one.
 
-> Package manager is good ole **`NPM`**.
+Below is a more detailed list of the core features of this template.
 
-## High Professional And Beautifully Implemented.
+1. **Agnostic Single-File Service Layer**: Experience the "One Process, One File" pattern where core database operations (find, create, update) for both MongoDB and PostgreSQL are consolidated into single, high-performance service files. No more messy file management—simply toggle your DB preference and the internal logic switches seamlessly.
+
+2. **Modular & Scalable Configuration**: A centralized, Zod-powered configuration system that validates your entire environment on startup. It is split into specialized modules (`db`, `jwt`, `server`, `ws`) for maximum separation of concerns and maintainability.
+
+3. **High-Security Auth Middleware**: A robust, dual-layered security architecture that separates Access and Session management. Includes pre-configured JWT handling and high-security HTTP-only cookie deployment for production-grade authentication.
+
+4. **True Multi-DB Flexibility**: Native support for MongoDB (Mongoose) and PostgreSQL (Prisma). Switch your entire project's data layer with a single `DATABASE_TYPE` change in your environment file.
+
+5. **Integrated WebSocket Core**: A professional WebSocket server implementation (using `ws`) included out of the box. Features built-in heartbeats, auto-cleanup, and graceful shutdown to ensure real-time stability.
+
+6. **Domain-Driven Design (DDD)**: A clean, modular architecture inspired by DDD. Business logic is strictly separated from API routing and controllers, making the codebase a joy to navigate and scale.
+
+7. **Multi-Environment Harmony**: Seamless support for `development`, `staging`, and `production`. Test complex environment-specific configurations locally with ease using isolated `.env` stacks.
+
+8. **Elite Developer Experience**:
+   - **Full TypeScript**: End-to-end type safety for rock-solid code.
+   - **Automated Quality**: Husky, Lint-staged, and Commitlint are pre-configured to enforce formatting, linting, and commit standards.
+   - **Modern Stack**: Powered by **Bun** for lightning-fast package management and execution.
+
+9. **Deployment Ready**: Standardized `Dockerfile` and `docker-compose` templates included, ensuring your app is ready for the cloud from day one.
+
+> Package manager is **`Bun`**.
+
+### High Professional And Beautifully Implemented.
 
 As earlier stated, the template is DDD(domain driven development)-inspired. Hence, it comes with some default - carefully thought-out domains(`auth`, `user`, and `admin`).
 
-With these default domains, you'll get to see how sample end-points are neatly and professionally implemented, providing COMPLETE extraction of ALL DATABASE LOGIC into special database-service files. Consequently, resulting in you having the absolute flexibility to use any database of your choice, while keeping your project controllers, utility/helper functions, and other areas of your project completely un-affected or barely affected by resulting database changes.
+With these default domains, you'll get to see how sample end-points are neatly and professionally implemented, providing COMPLETE extraction of ALL DATABASE LOGIC into unified service files.
 
-> P.S: While the current setup for the database service files and functions helps to clearly demonstrate how to professional engineer Node/Express projects in a domain-driven fashion - with proper logic separations, the double-implementations for both MongoDB and PostgreSQL will demand that you rename the database service files and functions by removing the database-specific prefix that are added on them. Kindly pardon that inconvenience, and make the best use of how the name-separations help you grasp things a lot faster and easier.
->
-> A great alternative way to handle the database logic-separation, is to copy the implementations(functions) for both databases into the same service file. All the functions should be named the same - e.g: 'findUser', then you simply comment out the one you do not intend to use. With that set-up, you'll simply be able to use the other database by uncommenting it's function/implementation whenever necessary.
+### One Process, One File
+
+The template utilizes a "One Process, One File" pattern for database operations (e.g., `user.findUser.service.ts`). Each service file handles the internal logic for both MongoDB and PostgreSQL, automatically selecting the correct implementation based on your `DATABASE_TYPE` setting. This results in you having the absolute flexibility to switch databases while keeping your controllers and core business logic completely unaffected.
 
 ## Working Environment Support.
 
@@ -41,11 +74,9 @@ With these default domains, you'll get to see how sample end-points are neatly a
 > 3. `.env.staging` - environmental variables file for the staging environment.
 > 4. `.env.production` - environmental variables file for the prod/production environment.
 
-**Before you generate a project with the template, endeavour to check step No. 3 in the [How To Use This Template](https://github.com/Okpainmo/multi-db-nodejs-express-with-typescript-and-zod-template?tab=readme-ov-file#how-to-use-this-template) section of this README file, and learn how to properly handle git-ignoring the environmental variables.** 
-
-### Switching Between Working Environments.
-
-> Switching to a different environment is easy: **simply head to the CORE environment file(`.env`), and select your preferred environment by uncommenting it and commenting the others. Once that is done, the project should automatically switch to the selected environment**.
+> Switching to a different environment is easy: **simply head to the CORE environment file(`.env`), and select your preferred environment by uncommenting it and commenting the others**.
+>
+> The project uses a dedicated config loader (`src/config/env.ts`) that automatically detects this change and loads the corresponding `.env.{environment}` file.
 
 I.e.
 
@@ -73,6 +104,17 @@ NODE_ENV="development"
 
 # ...code after
 ```
+
+### Switching Between Database Types.
+
+> To switch your preferred database, go to your active environment file (e.g., `.env.development`) and update the `DATABASE_TYPE` variable:
+>
+> ```bash
+> # Options: "mongodb", "postgresql"
+> DATABASE_TYPE=mongodb
+> ```
+>
+> The server will automatically connect to the selected database and use the appropriate service logic across all domains.
 
 ## How To Use This Template.
 
@@ -106,10 +148,10 @@ npm install
 
 ```bash
 # dependencies
-npm install axios bcryptjs cookie-parser cors dayjs dotenv express mongoose nodemailer pino zod @prisma/client mongodb bcrypt jsonwebtoken
+npm install axios bcryptjs cookie-parser cors dayjs dotenv express mongoose nodemailer pino zod @prisma/client mongodb bcrypt jsonwebtoken @prisma/adapter-pg pg ws
 
 # dev-dependencies
-npm install @types/cookie-parser @types/cors @types/express @types/node @types/nodemailer @typescript-eslint/parser prisma eslint eslint-config-prettier eslint-plugin-prettier lint-staged pino-pretty prettier ts-node tsx typescript dotenv-cli @typescript-eslint/eslint-plugin @eslint/js husky @commitlint/cli @commitlint/config-conventional @types/bcrypt @types/jsonwebtoken --save-dev
+npm install @types/cookie-parser @types/cors @types/express @types/node @types/nodemailer @typescript-eslint/parser prisma eslint eslint-config-prettier eslint-plugin-prettier lint-staged pino-pretty prettier ts-node tsx typescript dotenv-cli @typescript-eslint/eslint-plugin @eslint/js husky @commitlint/cli @commitlint/config-conventional @types/bcrypt @types/jsonwebtoken @types/ws @types/pg --save-dev
 ```
 
 7. Pull in the mongodb and postgresql docker images
@@ -199,20 +241,23 @@ npm run dev
 If successfully connected, you will see a response like the one below inside your terminal.
 
 ```bash
-[15:37:34.000] INFO: Establishing database connection...
-[15:37:35.000] INFO: ...................................
+[07:59:58.000] INFO: Establishing database connection(s)
+[07:59:58.000] INFO: ...................................
 Connected to: localhost
 Environment: development
 
 MongoDB connected successfully
 ........................................................
-[15:37:35.000] INFO: ...................................
-Connected to: localhost
-Environment: development
+[07:59:59.000] INFO: ...................................
+WebSocket server is listening on port 5000
+WebSocket: ws://localhost:5000/ws
 
-PostgreSQL connected successfully
+HTTP server is listening on port 5000
+HTTP: http://localhost:5000
+
+Environment: development
 ........................................................
-[15:37:35.000] INFO: Server is listening on port 5000...
+
 ```
 
 Your API server should start up and be accessible via port 5000 - `http://localhost:5000`. On visiting it, a Pretty-print response like the one below indicates that you're started and all good to go.
@@ -246,7 +291,7 @@ npx dotenv -e .env.development -- npx prisma generate
 
 ## Transpiling From Typescript To Javasctipt.
 
-The project as stated earlier, is typescript-core. To build(transpile) your project into raw Javascript(with the same exact structure as the TS verison) - for deployment or for any other necessary purpose, 
+The project as stated earlier, is typescript-core. To build(transpile) your project into raw Javascript(with the same exact structure as the TS verison) - for deployment or for any other necessary purpose,
 simply use the build command below.
 
 ```bash
@@ -368,21 +413,33 @@ Below are the default domains and their sample end-point, which you can build on
 1. Admin:
 
 - Endpoints:
-
   1. De-activate user - `/api/v1/admin/deactivate-user/:userId`
 
 2. Auth:
 
 - Endpoints:
-
   1. Log-in - `/api/v1/auth/log-in`
   2. Register - `/api/v1/auth/register`
 
 2. User:
 
 - Endpoints:
-
   1. Get user profile - `/api/v1/user/:userId`
+
+## Debugging.
+
+> This section contains a list of issues you might likely encounter while using this template, and how to fix/handle them.
+
+1. Post-installation script error(see `package.json` for reference).
+
+- Issue: Making a project installations while using a VPN caused the `post-install` process to crash.
+
+```shell
+Downloading Prisma engines for debian-openssl-3.0.x [                    ] 0%Error: request to https://binaries.prisma.sh/all_commits/9d6ad21cbbceab97458517b147a6a09ff43aa735/debian-openssl-3.0.x/schema-engine.gz.sha256 failed, reason:
+# error: postinstall script from "multi-db-nodejs-express-with-typescript-and-zod-template" exited with 1
+```
+
+- Fix: Disable your VPN and try again.
 
 ## Want To Contribute?
 

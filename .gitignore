@@ -13,7 +13,6 @@
 
 # prima
 /generated
-/prisma/migrations
-
 # notes
 notes.md
+
