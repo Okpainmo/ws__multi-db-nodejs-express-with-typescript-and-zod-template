@@ -1,6 +1,4 @@
-// dependency imports
 import express from 'express';
-import dotenv from 'dotenv';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import log from './utils/logger.js';
@@ -18,8 +16,8 @@ import adminRouter from './domains/admin/router/admin.router.js';
 import { requestDurationLogging } from './middlewares/requestDurationLogging.middleware.js';
 // dependency inits
 const app = express();
-dotenv.config();
-const allowedOrigins = process.env.NODE_ENV === 'production' ? ['https://mydomain.com'] : ['http://localhost:3000', 'http://localhost:5173', 'http://127.0.0.1:5173'];
+import { serverConfig, dbConfig, wsConfig } from './config/index.js';
+const allowedOrigins = serverConfig.env === 'production' ? ['https://mydomain.com'] : ['http://localhost:3000', 'http://localhost:5173', 'http://127.0.0.1:5173'];
 app.use(cors({
     credentials: true,
     origin: (origin, callback) => {
@@ -38,16 +36,6 @@ app.use(cors({
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// configure .env
-if (process.env.NODE_ENV === 'development') {
-    dotenv.config({ path: '.env.development' });
-}
-if (process.env.NODE_ENV === 'staging') {
-    dotenv.config({ path: '.env.staging' });
-}
-if (process.env.NODE_ENV === 'production') {
-    dotenv.config({ path: '.env.production' });
-}
 // Add request duration logging middleware
 app.use(requestDurationLogging);
 app.get('/', (_req, res) => {
@@ -62,26 +50,29 @@ app.get('/', (_req, res) => {
 app.use(`/api/v1/user`, userRouter);
 app.use(`/api/v1/auth`, authRouter);
 app.use(`/api/v1/admin`, adminRouter);
-const port = process.env.PORT || 5000;
+const port = serverConfig.port;
 const start = async () => {
-    const mongoDb_URI = process.env.MONGO_DB_URI;
     try {
-        log.info(`Establishing database connection...`);
-        const mongoDbConnection = await connectMongoDb(mongoDb_URI);
-        if (mongoDbConnection) {
-            log.info(`...................................\nConnected to: ${mongoDbConnection?.connection.host}\nEnvironment: ${process.env.DEPLOY_ENV ? process.env.DEPLOY_ENV : 'development'}
-      \nMongoDB connected successfully \n........................................................`);
+        log.info(`Establishing database connection(s)`);
+        if (dbConfig.type === 'mongodb') {
+            const mongoDbConnection = await connectMongoDb(dbConfig.mongodb.uri);
+            if (mongoDbConnection) {
+                log.info(`...................................\nConnected to: ${mongoDbConnection?.connection.host}\nEnvironment: ${serverConfig.env}
+        \nMongoDB connected successfully \n........................................................`);
+            }
         }
-        await connectPostgres();
-        const parsedUrl = new URL(process.env.POSTGRES_DATABASE_URL);
-        log.info(`...................................\nConnected to: ${parsedUrl.hostname}\nEnvironment: ${process.env.DEPLOY_ENV ? process.env.DEPLOY_ENV : 'development'}
-        \nPostgreSQL connected successfully \n........................................................`);
+        else if (dbConfig.type === 'postgresql') {
+            await connectPostgres();
+            const parsedUrl = new URL(dbConfig.postgresql.url);
+            log.info(`...................................\nConnected to: ${parsedUrl.hostname}\nEnvironment: ${serverConfig.env}
+          \nPostgreSQL connected successfully \n........................................................`);
+        }
         // Create HTTP server
         const httpServer = createServer(app);
         // Initialize WebSocket server
         const wss = createWebSocketServer(httpServer, {
-            path: process.env.WS_PATH || '/ws',
-            heartbeatInterval: Number(process.env.WS_HEARTBEAT_INTERVAL) || 30000,
+            path: wsConfig.path,
+            heartbeatInterval: wsConfig.heartbeatInterval,
             onConnection: async (ws, request) => {
                 log.info(`WebSocket client connected from ${request.socket.remoteAddress}`);
                 // Send welcome message
@@ -131,7 +122,7 @@ const start = async () => {
             log.info(`${signal} signal received: closing server gracefully`);
             try {
                 // Shutdown WebSocket server first
-                await shutdownWebSocketServer(wss, Number(process.env.WS_SHUTDOWN_TIMEOUT) || 10000);
+                await shutdownWebSocketServer(wss, wsConfig.shutdownTimeout);
                 // Close HTTP server
                 httpServer.close(() => {
                     log.info('HTTP server closed');

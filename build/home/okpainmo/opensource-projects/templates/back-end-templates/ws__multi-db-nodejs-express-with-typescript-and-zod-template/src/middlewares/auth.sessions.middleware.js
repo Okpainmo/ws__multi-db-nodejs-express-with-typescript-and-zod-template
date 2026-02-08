@@ -1,8 +1,7 @@
 import jwt from 'jsonwebtoken';
 import {} from 'express';
 import { errorHandler__401, errorHandler__403, errorHandler__404, errorHandler__500 } from '../utils/errorHandlers/codedErrorHandlers.js';
-// import { findUser__mongo } from '../domains/user/lib/mongo__user.findUser.service.js';
-import { findUser__postgres } from '../domains/user/lib/postgres__user.findUser.service.js';
+import { findUser } from '../domains/user/lib/user.findUser.service.js';
 import log from '../utils/logger.js';
 const sessionsMiddleware = async (req, res, next) => {
     const requestHeaders = req.headers;
@@ -31,8 +30,7 @@ const sessionsMiddleware = async (req, res, next) => {
         errorHandler__401('request rejected, please re-authenticate', res);
         return;
     }
-    // const user = await findUser__mongo({ email });
-    const user = await findUser__postgres({ email });
+    const user = await findUser({ email });
     if (!user) {
         errorHandler__404(`user with email: '${email}' not found or does not exist`, res);
         return;

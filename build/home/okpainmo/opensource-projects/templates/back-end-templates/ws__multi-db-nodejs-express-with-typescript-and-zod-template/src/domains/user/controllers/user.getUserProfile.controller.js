@@ -4,14 +4,12 @@
  * @route /api/v1/user/:userId
  * @access Public
  */
-// import { findUser__mongo } from '../../user/lib/mongo__user.findUser.service.js';
-import { findUser__postgres } from '../../user/lib/postgres__user.findUser.service.js';
+import { findUser } from '../lib/user.findUser.service.js';
 import { errorHandler__500, errorHandler__404 } from '../../../utils/errorHandlers/codedErrorHandlers.js';
 export const getUserProfile = async (req, res) => {
     try {
         const { userId } = req.params;
-        // const userToFind = await findUser__mongo({userId: userId as string });
-        const userToFind = await findUser__postgres({ userId: Number(userId) });
+        const userToFind = await findUser({ userId });
         if (!userToFind) {
             errorHandler__404(`user with id: '${userId}' not found or does not exist`, res);
             return;

@@ -2,8 +2,7 @@ import jwt from 'jsonwebtoken';
 import {} from 'express';
 import { generateTokens } from '../utils/generateTokens.js';
 import { errorHandler__401, errorHandler__403, errorHandler__404, errorHandler__500 } from '../utils/errorHandlers/codedErrorHandlers.js';
-// import { updateUser__mongo } from '../domains/user/lib/mongo__user.updateUser.service.js';
-import { updateUser__postgres } from '../domains/user/lib/postgres__user.updateUser.service.js';
+import { updateUser } from '../domains/user/lib/user.updateUser.service.js';
 import { deployAuthCookie } from '../utils/cookieDeployHandlers.js';
 import log from '../utils/logger.js';
 /*
@@ -44,11 +43,7 @@ const accessMiddleware = async (req, res, next) => {
             // authTokenSpecs - from global.d.ts
             const { accessToken, refreshToken, authCookie } = authTokens;
             if (accessToken && refreshToken && authCookie) {
-                // await updateUser__mongo({
-                //   email: user.email,
-                //   requestBody: { accessToken: accessToken, refreshToken: refreshToken }
-                // });
-                await updateUser__postgres({
+                await updateUser({
                     email: user.email,
                     requestBody: {
                         accessToken: accessToken,
@@ -75,11 +70,7 @@ const accessMiddleware = async (req, res, next) => {
                 // authTokenSpecs from global.d.ts
                 const { accessToken, refreshToken, authCookie } = authTokens;
                 if (accessToken && refreshToken && authCookie) {
-                    // await updateUser__mongo({
-                    //   email: user.email,
-                    //   requestBody: { accessToken: accessToken, refreshToken: refreshToken }
-                    // });
-                    await updateUser__postgres({
+                    await updateUser({
                         email: user.email,
                         requestBody: {
                             accessToken: accessToken,

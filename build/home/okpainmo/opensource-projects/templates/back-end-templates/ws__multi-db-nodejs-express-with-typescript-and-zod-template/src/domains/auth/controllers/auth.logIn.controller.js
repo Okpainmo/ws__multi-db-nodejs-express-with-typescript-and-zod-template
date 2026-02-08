@@ -4,18 +4,15 @@
  * @route /api/v1/auth/log-in
  * @access Public
  */
-// import { findUser__mongo } from '../../user/lib/mongo__user.findUser.service.js';
-import { findUser__postgres } from '../../user/lib/postgres__user.findUser.service.js';
-// import { updateUser__mongo } from '../../user/lib/mongo__user.updateUser.service.js';
-import { updateUser__postgres } from '../../user/lib/postgres__user.updateUser.service.js';
+import { findUser } from '../../user/lib/user.findUser.service.js';
+import { updateUser } from '../../user/lib/user.updateUser.service.js';
 import { errorHandler__403, errorHandler__404, errorHandler__500 } from '../../../utils/errorHandlers/codedErrorHandlers.js';
 import { deployAuthCookie } from '../../../utils/cookieDeployHandlers.js';
 import { generateTokens } from '../../../utils/generateTokens.js';
 import { decryptHandler } from '../../../utils/decryptHandler.js';
 export const LogIn = async (req, res) => {
     try {
-        // const existingUser = await findUser__mongo({ email: req.body.email });
-        const existingUser = await findUser__postgres({ email: req.body.email });
+        const existingUser = await findUser({ email: req.body.email });
         if (!existingUser) {
             errorHandler__404(`user with email: '${req.body.email}' not found or does not exist`, res);
             return;
@@ -32,11 +29,7 @@ export const LogIn = async (req, res) => {
             // authTokenSpecs from global.d.ts
             const { accessToken, refreshToken, authCookie } = authTokens;
             if (accessToken && refreshToken && authCookie) {
-                // await updateUser__mongo({
-                //   email: existingUser.email,
-                //   requestBody: { accessToken: accessToken, refreshToken: refreshToken }
-                // });
-                await updateUser__postgres({
+                await updateUser({
                     email: existingUser.email,
                     requestBody: {
                         accessToken: accessToken,
