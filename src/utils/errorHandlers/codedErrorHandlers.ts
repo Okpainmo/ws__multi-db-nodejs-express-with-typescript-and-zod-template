@@ -1,56 +1,132 @@
 import log from '../logger.js';
 import type { Response } from 'express';
 
-export const errorHandler__500 = (error: any, res: Response) => {
+/**
+ * Shared error payload shape for client responses
+ */
+interface ErrorResponsePayload {
+  responseMessage: string;
+  error: string;
+}
+
+/**
+ * Optional contextual metadata for logging
+ */
+interface ErrorContext {
+  [key: string]: unknown;
+}
+
+/**
+ * 500 – Internal Server Error
+ * Unexpected, server-side failures
+ */
+export const errorHandler__500 = (error: unknown, res: Response): void => {
   if (error instanceof Error) {
-    log.error(`Error: ${error.message}`);
+    log.error(
+      {
+        level: 'error',
+        err: error
+      },
+      'Internal Server Error'
+    );
 
     res.status(500).json({
       responseMessage: 'Request was unsuccessful: internal server error',
       error: error.message
-    });
-  } else {
-    log.error(`Error: ${error}`);
-
-    res.status(500).json({
-      responseMessage: 'Request was unsuccessful: internal server error',
-      error: error as string
-    });
+    } satisfies ErrorResponsePayload);
+    return;
   }
+
+  log.error(
+    {
+      level: 'error',
+      error
+    },
+    'Internal Server Error (non-Error thrown)'
+  );
+
+  res.status(500).json({
+    responseMessage: 'Request was unsuccessful: internal server error',
+    error: 'UNKNOWN_ERROR'
+  } satisfies ErrorResponsePayload);
 };
 
-export const errorHandler__403 = (errorMessage: any, res: Response) => {
-  log.error(`Forbidden Error: ${errorMessage}`);
+/**
+ * 403 – Forbidden
+ * Authenticated but not allowed
+ */
+export const errorHandler__403 = (data: { errorMessage: string; context?: ErrorContext }, res: Response): void => {
+  log.warn(
+    {
+      level: 'warn',
+      context: data.context,
+      errorMessage: data.errorMessage
+    },
+    'Forbidden'
+  );
 
   res.status(403).json({
-    responseMessage: errorMessage,
+    responseMessage: data.errorMessage,
     error: 'FORBIDDEN'
-  });
+  } satisfies ErrorResponsePayload);
 };
 
-export const errorHandler__401 = (errorMessage: any, res: Response) => {
-  log.error(`Unauthorized Error: ${errorMessage}`);
+/**
+ * 401 – Unauthorized
+ * Authentication required or failed
+ */
+export const errorHandler__401 = (data: { errorMessage: string; context?: ErrorContext }, res: Response): void => {
+  log.warn(
+    {
+      level: 'warn',
+      context: data.context,
+      errorMessage: data.errorMessage
+    },
+    'Unauthorized'
+  );
 
   res.status(401).json({
-    responseMessage: errorMessage,
+    responseMessage: data.errorMessage,
     error: 'UNAUTHORIZED'
-  });
+  } satisfies ErrorResponsePayload);
 };
 
-export const errorHandler__404 = (errorMessage: any, res: Response) => {
-  log.error(`Not Found Error: ${errorMessage}`);
+/**
+ * 404 – Not Found
+ * Resource does not exist
+ */
+export const errorHandler__404 = (data: { errorMessage: string; context?: ErrorContext }, res: Response): void => {
+  log.info(
+    {
+      level: 'info',
+      context: data.context,
+      errorMessage: data.errorMessage
+    },
+    'Not Found'
+  );
 
   res.status(404).json({
-    responseMessage: errorMessage,
-    error: 'NOT FOUND'
-  });
+    responseMessage: data.errorMessage,
+    error: 'NOT_FOUND'
+  } satisfies ErrorResponsePayload);
 };
 
-export const errorHandler__400 = (errorMessage: any, res: Response) => {
-  log.error(`Bad Request Error: ${errorMessage}`);
+/**
+ * 400 – Bad Request
+ * Client sent invalid input
+ */
+export const errorHandler__400 = (data: { errorMessage: string; context?: ErrorContext }, res: Response): void => {
+  log.info(
+    {
+      level: 'info',
+      context: data.context,
+      errorMessage: data.errorMessage
+    },
+    'Bad Request'
+  );
 
   res.status(400).json({
-    responseMessage: errorMessage,
-    error: 'BAD REQUEST'
-  });
+    responseMessage: data.errorMessage,
+    error: 'BAD_REQUEST'
+  } satisfies ErrorResponsePayload);
 };
