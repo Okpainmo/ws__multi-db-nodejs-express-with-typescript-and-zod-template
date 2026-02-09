@@ -33,27 +33,27 @@ The required dependencies are already in your `package.json`:
 > See './example-usage.ts' for a more complete guide to using the helper functions.
 
 ```typescript
-import { broadcastMessage, sendToUser, sendToConnection, isUserConnected, getConnectionCount } from './utils/webSocketCore/index.js'
+import { broadcastMessage, sendToUser, sendToConnection, isUserConnected, getConnectionCount } from './utils/webSocketCore/index.js';
 
 // Broadcast to all clients
 broadcastMessage({
   type: 'notification',
   payload: { message: 'Server maintenance in 5 minutes' }
-})
+});
 
 // Send to specific user (all their connections)
 sendToUser('user123', {
   type: 'private_message',
   payload: { from: 'admin', text: 'Hello!' }
-})
+});
 
 // Check if user is online
 if (isUserConnected('user123')) {
-  console.log('User is online')
+  console.log('User is online');
 }
 
 // Get total connections
-console.log(`Active connections: ${getConnectionCount()}`)
+console.log(`Active connections: ${getConnectionCount()}`);
 ```
 
 ## API Reference
@@ -77,12 +77,12 @@ Extended WebSocket with additional metadata:
 
 ```typescript
 type ExtendedWebSocket = WebSocket & {
-  id: string // Unique connection ID
-  userId?: string // Associated user ID
-  metadata?: Record<string, unknown> // Custom metadata
-  isAlive?: boolean // Heartbeat status
-  lastActivity?: Date // Last activity timestamp
-}
+  id: string; // Unique connection ID
+  userId?: string; // Associated user ID
+  metadata?: Record<string, unknown>; // Custom metadata
+  isAlive?: boolean; // Heartbeat status
+  lastActivity?: Date; // Last activity timestamp
+};
 ```
 
 #### `WebSocketMessage`
@@ -91,10 +91,10 @@ Standard message format:
 
 ```typescript
 type WebSocketMessage = {
-  type: string // Message type
-  payload?: unknown // Message data
-  timestamp?: number // Message timestamp
-}
+  type: string; // Message type
+  payload?: unknown; // Message data
+  timestamp?: number; // Message timestamp
+};
 ```
 
 ### Core Functions
@@ -274,8 +274,8 @@ The `safeSendMessage()` function automatically checks the state before sending:
 
 ```typescript
 if (!isSocketOpen(ws)) {
-  log.warn(`Cannot send - socket not open. State: ${ws.readyState}`)
-  return false
+  log.warn(`Cannot send - socket not open. State: ${ws.readyState}`);
+  return false;
 }
 ```
 
@@ -288,14 +288,14 @@ onMessage: async (ws, message) => {
   switch (message.type) {
     case 'authenticate':
       // Handle auth
-      break
+      break;
     case 'chat':
       // Handle chat
-      break
+      break;
     default:
     // Unknown message type
   }
-}
+};
 ```
 
 ### Server → Client
@@ -305,19 +305,19 @@ onMessage: async (ws, message) => {
 safeSendMessage(ws, {
   type: 'notification',
   payload: { text: 'Hello!' }
-})
+});
 
 // To user (all connections)
 sendToUser(userId, {
   type: 'update',
   payload: { data: 'new data' }
-})
+});
 
 // Broadcast to all
 broadcastMessage({
   type: 'announcement',
   payload: { message: 'System maintenance' }
-})
+});
 ```
 
 ## Error Handling
@@ -326,9 +326,9 @@ All functions include comprehensive error handling:
 
 ```typescript
 try {
-  safeSendMessage(ws, message)
+  safeSendMessage(ws, message);
 } catch (error) {
-  log.error('Send failed:', error)
+  log.error('Send failed:', error);
 }
 ```
 
@@ -376,26 +376,26 @@ Common close codes used:
 Connect to your WebSocket server using any WebSocket client:
 
 ```javascript
-const ws = new WebSocket('ws://localhost:5000/ws')
+const ws = new WebSocket('ws://localhost:5000/ws');
 
 ws.onopen = () => {
-  console.log('Connected')
+  console.log('Connected');
   ws.send(
     JSON.stringify({
       type: 'authenticate',
       payload: { userId: 'user123' }
     })
-  )
-}
+  );
+};
 
 ws.onmessage = (event) => {
-  const message = JSON.parse(event.data)
-  console.log('Received:', message)
-}
+  const message = JSON.parse(event.data);
+  console.log('Received:', message);
+};
 
 ws.onclose = () => {
-  console.log('Disconnected')
-}
+  console.log('Disconnected');
+};
 ```
 
 ## License

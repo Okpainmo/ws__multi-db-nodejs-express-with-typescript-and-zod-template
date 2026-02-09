@@ -58,11 +58,11 @@ The application uses these values to determine which service implementation shou
 Always import from the main config index. You can destructure specific configuration objects as needed:
 
 ```typescript
-import { dbConfig, jwtConfig, serverConfig } from '@/config/index.js'
+import { dbConfig, jwtConfig, serverConfig } from '@/config/index.js';
 
 // Accessing settings
-console.log(dbConfig.type) // 'mongodb'
-console.log(serverConfig.port) // 5000
+console.log(dbConfig.type); // 'mongodb'
+console.log(serverConfig.port); // 5000
 ```
 
 ### 3. Adding New Environment Variables
