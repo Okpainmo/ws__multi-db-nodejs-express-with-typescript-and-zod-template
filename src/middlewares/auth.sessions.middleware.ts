@@ -3,7 +3,7 @@ import { type Request, type Response, type NextFunction } from 'express';
 import type { UserSpecs } from '../domains/user/schema/user.schema.js';
 import { errorHandler__401, errorHandler__403, errorHandler__404, errorHandler__500 } from '../utils/errorHandlers/codedErrorHandlers.js';
 import { findUser } from '../domains/user/lib/user.findUser.service.js';
-import log from '../utils/logger.js';
+// import log from '../utils/logger.js';
 
 type RequestHeaderContentSpecs = {
   authorization: string;
@@ -34,7 +34,10 @@ const sessionsMiddleware = async (req: Request, res: Response<ResponseSpecs>, ne
   const jwtSecret = process.env.JWT_SECRET as string;
 
   if (!email || !authorization) {
-    errorHandler__401('email or authorization header missing on request', res);
+    errorHandler__401(
+      { errorMessage: 'email or authorization header missing on request', context: { hasEmail: !!email, hasAuth: !!authorization } },
+      res
+    );
 
     return;
   }
@@ -55,7 +58,7 @@ const sessionsMiddleware = async (req: Request, res: Response<ResponseSpecs>, ne
   queries on the cookie - going further to validate it's authenticity - if you wish. I highly recommend doing that.
   */
   if (!req.headers.cookie || !req.headers.cookie.includes('MultiDB_NodeExpressTypescript_Template')) {
-    errorHandler__401('request rejected, please re-authenticate', res);
+    errorHandler__401({ errorMessage: 'request rejected, please re-authenticate', context: { reason: 'No valid auth cookie found' } }, res);
 
     return;
   }
@@ -63,13 +66,13 @@ const sessionsMiddleware = async (req: Request, res: Response<ResponseSpecs>, ne
   const user = await findUser({ email });
 
   if (!user) {
-    errorHandler__404(`user with email: '${email}' not found or does not exist`, res);
+    errorHandler__404({ errorMessage: 'user not found or does not exist', context: { email } }, res);
 
     return;
   }
 
   if (user && !user.refreshToken) {
-    errorHandler__404('refresh token not found', res);
+    errorHandler__404({ errorMessage: 'refresh token not found', context: { email: user.email, userId: user.id } }, res);
 
     return;
   }
@@ -80,7 +83,7 @@ const sessionsMiddleware = async (req: Request, res: Response<ResponseSpecs>, ne
       const decodedSessionJWT = jwt.decode(user.refreshToken, { complete: true }) as { payload: JwtPayloadSpecs } | null;
 
       if (!decodedSessionJWT || decodedSessionJWT.payload.userEmail !== user?.email) {
-        errorHandler__401('user credentials do not match', res);
+        errorHandler__401({ errorMessage: 'user credentials do not match', context: { email: user.email, userId: user.id } }, res);
 
         return;
       }
@@ -91,8 +94,8 @@ const sessionsMiddleware = async (req: Request, res: Response<ResponseSpecs>, ne
       // if you track user sessions, handle updating(renewing) the user session in DB here
       // ==================================================================================
 
-      const sessionStatus = `USER SESSION IS ACTIVE`;
-      log.info(sessionStatus);
+      // const sessionStatus = `USER SESSION IS ACTIVE`;
+      // log.info(sessionStatus);
 
       req.userData = { user: user as UserSpecs };
 
@@ -103,10 +106,10 @@ const sessionsMiddleware = async (req: Request, res: Response<ResponseSpecs>, ne
         // if you track user sessions, handle updating(ending/terminating) the user session in DB here
         // ==================================================================================
 
-        const sessionStatus = `EXPIRED SESSION: session terminated for '${user.email}'`;
+        // const sessionStatus = `EXPIRED SESSION: session terminated for '${user.email}'`;
 
-        log.info(sessionStatus);
-        errorHandler__403('user session is expired, please re-authenticate', res);
+        // log.info(sessionStatus);
+        errorHandler__403({ errorMessage: 'user session is expired, please re-authenticate', context: { email: user.email, userId: user.id } }, res);
 
         return;
       } else {

@@ -5,7 +5,7 @@ import type { UserSpecs } from '../domains/user/schema/user.schema.js';
 import { errorHandler__401, errorHandler__403, errorHandler__404, errorHandler__500 } from '../utils/errorHandlers/codedErrorHandlers.js';
 import { updateUser } from '../domains/user/lib/user.updateUser.service.js';
 import { deployAuthCookie } from '../utils/cookieDeployHandlers.js';
-import log from '../utils/logger.js';
+// import log from '../utils/logger.js';
 
 type RequestHeaderContentSpecs = {
   authorization: string;
@@ -50,19 +50,19 @@ const accessMiddleware = async (req: Request, res: Response<ResponseSpecs>, next
 
   // checking for the cookie again - just to be extra-secure
   if (!req.headers.cookie || !req.headers.cookie.includes('MultiDB_NodeExpressTypescript_Template')) {
-    errorHandler__401('request rejected, please re-authenticate', res);
+    errorHandler__401({ errorMessage: 'request rejected, please re-authenticate', context: { reason: 'No valid auth cookie found' } }, res);
 
     return;
   }
 
   if (!user) {
-    errorHandler__404(`user with not received from sessions middleware`, res);
+    errorHandler__404({ errorMessage: 'user not received from sessions middleware', context: {} }, res);
 
     return;
   }
 
   if (!authorization || !authorization.startsWith('Bearer ')) {
-    errorHandler__403('authorization string does not match expected(Bearer Token) result', res);
+    errorHandler__403({ errorMessage: 'authorization string does not match expected(Bearer Token) result', context: { userId: user.id } }, res);
 
     return;
   }
@@ -75,7 +75,7 @@ const accessMiddleware = async (req: Request, res: Response<ResponseSpecs>, next
       const decodedAccessJWT = jwt.decode(returnedAccessToken, { complete: true }) as { payload: JwtPayloadSpecs } | null;
 
       if (!decodedAccessJWT || decodedAccessJWT.payload.userEmail !== user?.email) {
-        errorHandler__401('user credentials do not match', res);
+        errorHandler__401({ errorMessage: 'user credentials do not match', context: { email: user.email, userId: user.id } }, res);
 
         return;
       }
@@ -100,7 +100,7 @@ const accessMiddleware = async (req: Request, res: Response<ResponseSpecs>, next
         deployAuthCookie({ authCookie: authCookie }, res);
 
         const sessionStatus = `ACTIVE ACCESS WITH ACTIVE SESSION: access and session renewed for '${user.email}'`;
-        log.info(sessionStatus);
+        // log.info(sessionStatus);
 
         req.userData = {
           user: user as UserSpecs,
@@ -133,7 +133,7 @@ const accessMiddleware = async (req: Request, res: Response<ResponseSpecs>, next
           deployAuthCookie({ authCookie: authCookie }, res);
 
           const sessionStatus = `EXPIRED ACCESS WITH ACTIVE SESSION: access and session renewed for '${user.email}'`;
-          log.info(sessionStatus);
+          // log.info(sessionStatus);
 
           req.userData = {
             user: user as UserSpecs,

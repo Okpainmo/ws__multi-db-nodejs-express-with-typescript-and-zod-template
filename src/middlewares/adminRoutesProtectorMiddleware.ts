@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
-import log from '../utils/logger.js';
-import { errorHandler__401 } from '../utils/errorHandlers/codedErrorHandlers.js';
+import { errorHandler__403 } from '../utils/errorHandlers/codedErrorHandlers.js';
 import type { UserSpecs } from '../domains/user/schema/user.schema.js';
+import log from '../utils/logger.js';
 
 /**
  * Admin Route Protection Middleware
@@ -36,14 +36,20 @@ export const adminRoutesProtector = (req: Request, res: Response<ResponseSpecs>,
 
     if (!user?.isAdmin || !user.isActive) {
       // extra activeness check in case of de-activated admins
-      log.warn(`Unauthorized access attempt on admin route: ${req.method} ${path}`);
+      log.warn({ level: 'warn', method: req.method, path }, 'Unauthorized access attempt on admin route');
 
-      errorHandler__401('request rejected, admins only', res);
+      errorHandler__403(
+        {
+          errorMessage: 'request rejected, admins only',
+          context: { email: user?.email, userId: user?.id, isAdmin: user?.isAdmin, isActive: user?.isActive }
+        },
+        res
+      );
 
       return;
     }
 
-    log.info(`Admin access granted to: ${user.email || 'Unknown user'} -> ${req.method} ${path}`);
+    log.info({ level: 'info', email: user.email || 'Unknown user', method: req.method, path }, 'Admin access granted');
   }
 
   next();
