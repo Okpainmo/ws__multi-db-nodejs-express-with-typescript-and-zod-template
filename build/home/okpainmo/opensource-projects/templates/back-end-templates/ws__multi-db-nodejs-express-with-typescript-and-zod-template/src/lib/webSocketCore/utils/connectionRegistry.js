@@ -15,7 +15,12 @@ export function registerConnection(ws, userId) {
         }
         userConnections.get(userId).add(ws.id);
     }
-    log.info(`Connection registered - ID: ${ws.id}, UserID: ${userId || 'anonymous'}, Total: ${activeConnections.size}`);
+    log.info({
+        level: 'info',
+        connectionId: ws.id,
+        userId: userId || 'anonymous',
+        totalConnections: activeConnections.size
+    }, 'Connection registered');
 }
 /**
  * Unregister a WebSocket connection
@@ -37,7 +42,7 @@ export function unregisterConnection(connectionId) {
     }
     // Remove from active connections
     activeConnections.delete(connectionId);
-    log.info(`Connection unregistered - ID: ${connectionId}, Total: ${activeConnections.size}`);
+    log.info({ level: 'info', connectionId, totalConnections: activeConnections.size }, 'Connection unregistered');
 }
 /**
  * Get connection metadata

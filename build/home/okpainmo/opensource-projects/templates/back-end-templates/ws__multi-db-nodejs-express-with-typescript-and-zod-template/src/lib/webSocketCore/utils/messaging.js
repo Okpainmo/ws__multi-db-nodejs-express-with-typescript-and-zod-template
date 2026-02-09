@@ -18,7 +18,7 @@ export function broadcastMessage(message, excludeConnectionId) {
             failureCount++;
         }
     });
-    log.info(`Broadcast complete - Success: ${successCount}, Failed: ${failureCount}`);
+    log.info({ level: 'info', successCount, failureCount }, 'Broadcast complete');
 }
 /**
  * Send a message to a specific user (all their connections)
@@ -26,7 +26,7 @@ export function broadcastMessage(message, excludeConnectionId) {
 export function sendToUser(userId, message) {
     const connectionIds = userConnections.get(userId);
     if (!connectionIds || connectionIds.size === 0) {
-        log.warn(`No active connections found for user: ${userId}`);
+        log.warn({ level: 'warn', userId }, 'No active connections found for user');
         return false;
     }
     let successCount = 0;
@@ -44,7 +44,7 @@ export function sendToUser(userId, message) {
 export function sendToConnection(connectionId, message) {
     const ws = activeConnections.get(connectionId);
     if (!ws) {
-        log.warn(`Connection not found: ${connectionId}`);
+        log.warn({ level: 'warn', connectionId }, 'Connection not found');
         return false;
     }
     return safeSendMessage(ws, message);

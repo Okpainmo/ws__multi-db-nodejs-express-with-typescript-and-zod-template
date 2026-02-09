@@ -1,5 +1,5 @@
+import { errorHandler__403 } from '../utils/errorHandlers/codedErrorHandlers.js';
 import log from '../utils/logger.js';
-import { errorHandler__401 } from '../utils/errorHandlers/codedErrorHandlers.js';
 export const adminRoutesProtector = (req, res, next) => {
     const path = req.originalUrl || req.path;
     // Only guard routes that include "/admin"
@@ -8,11 +8,14 @@ export const adminRoutesProtector = (req, res, next) => {
         const user = req?.userData?.user;
         if (!user?.isAdmin || !user.isActive) {
             // extra activeness check in case of de-activated admins
-            log.warn(`Unauthorized access attempt on admin route: ${req.method} ${path}`);
-            errorHandler__401('request rejected, admins only', res);
+            log.warn({ level: 'warn', method: req.method, path }, 'Unauthorized access attempt on admin route');
+            errorHandler__403({
+                errorMessage: 'request rejected, admins only',
+                context: { email: user?.email, userId: user?.id, isAdmin: user?.isAdmin, isActive: user?.isActive }
+            }, res);
             return;
         }
-        log.info(`Admin access granted to: ${user.email || 'Unknown user'} -> ${req.method} ${path}`);
+        log.info({ level: 'info', email: user.email || 'Unknown user', method: req.method, path }, 'Admin access granted');
     }
     next();
 };

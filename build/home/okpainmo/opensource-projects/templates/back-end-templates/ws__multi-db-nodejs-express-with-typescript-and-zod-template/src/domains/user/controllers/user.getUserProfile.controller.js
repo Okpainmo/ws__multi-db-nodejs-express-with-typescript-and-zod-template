@@ -6,12 +6,13 @@
  */
 import { findUser } from '../lib/user.findUser.service.js';
 import { errorHandler__500, errorHandler__404 } from '../../../utils/errorHandlers/codedErrorHandlers.js';
+import log from '../../../utils/logger.js';
 export const getUserProfile = async (req, res) => {
     try {
         const { userId } = req.params;
         const userToFind = await findUser({ userId });
         if (!userToFind) {
-            errorHandler__404(`user with id: '${userId}' not found or does not exist`, res);
+            errorHandler__404({ errorMessage: 'user not found or does not exist', context: { userId } }, res);
             return;
         }
         const userProfile = {
@@ -23,7 +24,8 @@ export const getUserProfile = async (req, res) => {
             createdAt: userToFind.createdAt,
             updatedAt: userToFind.updatedAt
         };
-        if (req.userData?.newUserAccessToken && req?.userData?.newUserRefreshToken)
+        if (req.userData?.newUserAccessToken && req?.userData?.newUserRefreshToken) {
+            log.info({ level: 'info', userId: userToFind.id, email: userToFind.email }, 'User profile retrieved successfully');
             res.status(200).json({
                 responseMessage: 'User profile retrieved successfully',
                 response: {
@@ -32,6 +34,7 @@ export const getUserProfile = async (req, res) => {
                     refreshToken: req.userData?.newUserRefreshToken
                 }
             });
+        }
     }
     catch (error) {
         errorHandler__500(error, res);

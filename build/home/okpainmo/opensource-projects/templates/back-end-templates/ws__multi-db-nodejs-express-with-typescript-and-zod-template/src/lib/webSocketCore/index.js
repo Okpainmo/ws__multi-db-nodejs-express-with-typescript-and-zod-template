@@ -1,5 +1,6 @@
 import { WebSocket, WebSocketServer } from 'ws';
 import { IncomingMessage, Server as HTTPServer } from 'http';
+import { randomUUID } from 'crypto';
 import log from '../../utils/logger.js';
 import { generateConnectionId } from './utils/generateConnectionId.js';
 import { safeSendMessage, parseMessage } from './utils/messageHandler.js';
@@ -19,6 +20,8 @@ export function createWebSocketServer(httpServer, options) {
     wss.on('connection', async (ws, request) => {
         const extendedWs = ws;
         extendedWs.id = generateConnectionId();
+        // Ensure a request-scoped correlation ID for the connection
+        extendedWs.requestId = request.headers['x-request-id'] || randomUUID();
         extendedWs.isAlive = true;
         extendedWs.lastActivity = new Date();
         extendedWs.metadata = {
@@ -26,8 +29,21 @@ export function createWebSocketServer(httpServer, options) {
             userAgent: request.headers['user-agent'],
             remoteAddress: request.socket.remoteAddress
         };
-        log.info(`New WebSocket connection - ID: ${extendedWs.id}, IP: ${request.socket.remoteAddress}`);
+        // Log connection attempt (Handshake)
+        const method = request.method;
+        const url = request.url;
+        // log.info('...................................');
+        log.info({ level: 'info', requestId: extendedWs.requestId }, `WebSocket Handshake started: ${method} ${url}`);
         registerConnection(extendedWs);
+        // Log connection established
+        log.info({
+            level: 'info',
+            requestId: extendedWs.requestId,
+            connectionId: extendedWs.id,
+            remoteAddress: request.socket.remoteAddress,
+            userAgent: request.headers['user-agent'],
+            env: process.env.NODE_ENV
+        }, 'WebSocket Session Established');
         if (options?.heartbeatInterval !== 0) {
             setupHeartbeat(extendedWs, options?.heartbeatInterval);
         }
@@ -36,12 +52,14 @@ export function createWebSocketServer(httpServer, options) {
                 await options.onConnection(extendedWs, request);
             }
             catch (error) {
-                log.error(`Error in connection handler: ${error instanceof Error ? error.message : 'Unknown error'}`);
+                log.error({ level: 'error', error: error instanceof Error ? error.message : 'Unknown error' }, 'Error in connection handler');
             }
         }
         extendedWs.on('message', async (data) => {
+            const msgStartTime = Date.now();
             extendedWs.lastActivity = new Date();
             const message = parseMessage(data);
+            const msgType = message?.type || 'unknown';
             if (!message) {
                 safeSendMessage(extendedWs, {
                     type: 'error',
@@ -49,39 +67,65 @@ export function createWebSocketServer(httpServer, options) {
                 });
                 return;
             }
-            if (options?.onMessage) {
-                try {
+            try {
+                if (options?.onMessage) {
                     await options.onMessage(extendedWs, message);
                 }
-                catch (error) {
-                    log.error(`Error in message handler: ${error instanceof Error ? error.message : 'Unknown error'}`);
-                    safeSendMessage(extendedWs, {
-                        type: 'error',
-                        payload: { message: 'Error processing message' }
-                    });
-                }
+            }
+            catch (error) {
+                log.error({
+                    level: 'error',
+                    requestId: extendedWs.requestId,
+                    connectionId: extendedWs.id,
+                    error: error instanceof Error ? error.message : 'Unknown error'
+                }, 'Error in message handler');
+                safeSendMessage(extendedWs, {
+                    type: 'error',
+                    payload: { message: 'Error processing message' }
+                });
+            }
+            finally {
+                const duration = Date.now() - msgStartTime;
+                log.info({
+                    level: 'info',
+                    requestId: extendedWs.requestId,
+                    connectionId: extendedWs.id,
+                    type: 'WS_MESSAGE',
+                    messageType: msgType,
+                    duration: `${duration}ms`,
+                    status: 'processed'
+                }, `WS Message finished: ${msgType}`);
             }
         });
         extendedWs.on('close', async (code, reason) => {
-            log.info(`WebSocket closed - ID: ${extendedWs.id}, Code: ${code}, Reason: ${reason.toString()}`);
+            const sessionDuration = Date.now() - (extendedWs.metadata?.connectedAt).getTime();
+            log.info({
+                level: 'info',
+                requestId: extendedWs.requestId,
+                connectionId: extendedWs.id,
+                duration: `${sessionDuration}ms`,
+                code,
+                reason: reason.toString()
+            }, 'WebSocket Session Ended');
+            // log.info('...................................');
             if (options?.onClose) {
                 try {
                     await options.onClose(extendedWs, code, reason);
                 }
                 catch (error) {
-                    log.error(`Error in close handler: ${error instanceof Error ? error.message : 'Unknown error'}`);
+                    log.error({ level: 'error', error: error instanceof Error ? error.message : 'Unknown error' }, 'Error in close handler');
                 }
             }
             unregisterConnection(extendedWs.id);
         });
         extendedWs.on('error', async (error) => {
-            log.error(`WebSocket error - ID: ${extendedWs.id}, Error: ${error.message}`);
+            log.error({ level: 'error', connectionId: extendedWs.id, error: error.message }, 'WebSocket error');
             if (options?.onError) {
                 try {
                     await options.onError(extendedWs, error);
                 }
                 catch (handlerError) {
-                    log.error(`Error in error handler: ${handlerError instanceof Error ? handlerError.message : 'Unknown error'}`);
+                    log.error({ level: 'error', error: handlerError instanceof Error ? handlerError.message : 'Unknown error' }, 'Error in error handler');
                 }
             }
             safeCloseSocket(extendedWs, 1011, 'Internal error');
@@ -100,7 +144,7 @@ export function createWebSocketServer(httpServer, options) {
  * Gracefully shutdown WebSocket server
  */
 export async function shutdownWebSocketServer(wss, timeout = 10000) {
-    log.info('Initiating WebSocket server shutdown...');
+    log.info({ level: 'info' }, 'Initiating WebSocket server shutdown...');
     broadcastMessage({
         type: 'server_shutdown',
         payload: { message: 'Server is shutting down' }
@@ -126,11 +170,11 @@ export async function shutdownWebSocketServer(wss, timeout = 10000) {
     return new Promise((resolve, reject) => {
         wss.close((error) => {
             if (error) {
-                log.error(`Error closing WebSocket server: ${error.message}`);
+                log.error({ level: 'error', error: error.message }, 'Error closing WebSocket server');
                 reject(error);
             }
             else {
-                log.info('WebSocket server shutdown complete');
+                log.info({ level: 'info' }, 'WebSocket server shutdown complete');
                 resolve();
             }
         });

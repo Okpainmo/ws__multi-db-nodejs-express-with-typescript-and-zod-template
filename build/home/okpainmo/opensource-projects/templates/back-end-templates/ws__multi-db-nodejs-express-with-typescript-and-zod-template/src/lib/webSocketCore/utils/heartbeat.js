@@ -11,7 +11,7 @@ export function setupHeartbeat(ws, interval = 30000) {
     });
     const pingInterval = setInterval(() => {
         if (ws.isAlive === false) {
-            log.warn(`Connection ${ws.id} failed heartbeat check - terminating`);
+            log.warn({ level: 'warn', connectionId: ws.id }, 'Failed heartbeat check - terminating connection');
             clearInterval(pingInterval);
             ws.terminate();
             return;

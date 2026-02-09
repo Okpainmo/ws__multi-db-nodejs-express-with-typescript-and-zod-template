@@ -8,10 +8,12 @@ import { customServiceErrorHandler } from '../../../utils/errorHandlers/customSe
  */
 export async function createUser(data) {
     try {
-        if (dbConfig.type === 'mongodb') {
+        const dbType = dbConfig.domains.auth;
+        let createdUser = null;
+        if (dbType === 'mongodb') {
             const { name, email, password } = data.user;
             const newUser = await userModel.create({ name, email, password });
-            return {
+            createdUser = {
                 id: newUser._id,
                 name: newUser.name,
                 email: newUser.email,
@@ -21,7 +23,7 @@ export async function createUser(data) {
                 updatedAt: newUser.updatedAt
             };
         }
-        if (dbConfig.type === 'postgresql') {
+        if (dbType === 'postgresql') {
             const user = await prisma.user.create({
                 data: {
                     name: data.user.name,
@@ -38,9 +40,9 @@ export async function createUser(data) {
                     updatedAt: true
                 }
             });
-            return user;
+            createdUser = user;
         }
-        return null;
+        return createdUser;
     }
     catch (error) {
         customServiceErrorHandler(error);
