@@ -9,24 +9,24 @@ For better organization, you can create a dedicated WebSocket domain similar to 
 ### File: `src/domains/websocket/handlers/messageHandler.ts`
 
 ```typescript
-import { ExtendedWebSocket, WebSocketMessage } from '../../../utils/webSocketCore/index.js';
-import log from '../../../utils/logger.js';
+import { ExtendedWebSocket, WebSocketMessage } from '../../../utils/webSocketCore/index.js'
+import log from '../../../utils/logger.js'
 
 export async function handleWebSocketMessage(ws: ExtendedWebSocket, message: WebSocketMessage) {
-  log.info(`Processing message - Type: ${message.type}, Connection: ${ws.id}`);
+  log.info(`Processing message - Type: ${message.type}, Connection: ${ws.id}`)
 
   switch (message.type) {
     case 'authenticate':
-      await handleAuthenticate(ws, message);
-      break;
+      await handleAuthenticate(ws, message)
+      break
 
     case 'chat':
-      await handleChatMessage(ws, message);
-      break;
+      await handleChatMessage(ws, message)
+      break
 
     case 'subscribe':
-      await handleSubscribe(ws, message);
-      break;
+      await handleSubscribe(ws, message)
+      break
 
     default:
       ws.send(
@@ -34,27 +34,27 @@ export async function handleWebSocketMessage(ws: ExtendedWebSocket, message: Web
           type: 'error',
           payload: { message: `Unknown message type: ${message.type}` }
         })
-      );
+      )
   }
 }
 
 async function handleAuthenticate(ws: ExtendedWebSocket, message: WebSocketMessage) {
   // Extract token from message
-  const { token } = message.payload as { token: string };
+  const { token } = message.payload as { token: string }
 
   // Verify token and get userId
   // const userId = await verifyToken(token);
 
   // For now, mock authentication
-  const userId = 'user_' + Date.now();
-  ws.userId = userId;
+  const userId = 'user_' + Date.now()
+  ws.userId = userId
 
   ws.send(
     JSON.stringify({
       type: 'authenticated',
       payload: { userId, connectionId: ws.id }
     })
-  );
+  )
 }
 
 async function handleChatMessage(ws: ExtendedWebSocket, message: WebSocketMessage) {
@@ -64,12 +64,12 @@ async function handleChatMessage(ws: ExtendedWebSocket, message: WebSocketMessag
         type: 'error',
         payload: { message: 'Not authenticated' }
       })
-    );
-    return;
+    )
+    return
   }
 
   // Process chat message
-  log.info(`Chat message from ${ws.userId}: ${JSON.stringify(message.payload)}`);
+  log.info(`Chat message from ${ws.userId}: ${JSON.stringify(message.payload)}`)
 
   // Echo back for now
   ws.send(
@@ -77,23 +77,23 @@ async function handleChatMessage(ws: ExtendedWebSocket, message: WebSocketMessag
       type: 'chat_received',
       payload: message.payload
     })
-  );
+  )
 }
 
 async function handleSubscribe(ws: ExtendedWebSocket, message: WebSocketMessage) {
-  const { channel } = message.payload as { channel: string };
+  const { channel } = message.payload as { channel: string }
 
   // Store subscription in metadata
-  if (!ws.metadata) ws.metadata = {};
-  if (!ws.metadata.subscriptions) ws.metadata.subscriptions = [];
-  (ws.metadata.subscriptions as string[]).push(channel);
+  if (!ws.metadata) ws.metadata = {}
+  if (!ws.metadata.subscriptions) ws.metadata.subscriptions = []
+  ;(ws.metadata.subscriptions as string[]).push(channel)
 
   ws.send(
     JSON.stringify({
       type: 'subscribed',
       payload: { channel }
     })
-  );
+  )
 }
 ```
 
@@ -112,27 +112,27 @@ Or create a simple HTML test page (see `test-client.html` below).
 ### Using Browser Console
 
 ```javascript
-const ws = new WebSocket('ws://localhost:5000/ws');
+const ws = new WebSocket('ws://localhost:5000/ws')
 
 ws.onopen = () => {
-  console.log('Connected!');
+  console.log('Connected!')
 
   // Send ping
-  ws.send(JSON.stringify({ type: 'ping' }));
-};
+  ws.send(JSON.stringify({ type: 'ping' }))
+}
 
 ws.onmessage = (event) => {
-  const data = JSON.parse(event.data);
-  console.log('Received:', data);
-};
+  const data = JSON.parse(event.data)
+  console.log('Received:', data)
+}
 
 ws.onerror = (error) => {
-  console.error('WebSocket error:', error);
-};
+  console.error('WebSocket error:', error)
+}
 
 ws.onclose = () => {
-  console.log('Disconnected');
-};
+  console.log('Disconnected')
+}
 ```
 
 ### Using a WebSocket Client Tool
@@ -150,28 +150,28 @@ Create type definitions for your WebSocket messages:
 ### File: `src/types/websocket.types.ts`
 
 ```typescript
-export type ClientMessageType = 'ping' | 'authenticate' | 'chat' | 'subscribe' | 'unsubscribe';
+export type ClientMessageType = 'ping' | 'authenticate' | 'chat' | 'subscribe' | 'unsubscribe'
 
-export type ServerMessageType = 'pong' | 'welcome' | 'authenticated' | 'chat_received' | 'subscribed' | 'notification' | 'error';
+export type ServerMessageType = 'pong' | 'welcome' | 'authenticated' | 'chat_received' | 'subscribed' | 'notification' | 'error'
 
 export type AuthenticatePayload = {
-  token: string;
-};
+  token: string
+}
 
 export type ChatPayload = {
-  recipientId: string;
-  message: string;
-};
+  recipientId: string
+  message: string
+}
 
 export type SubscribePayload = {
-  channel: string;
-};
+  channel: string
+}
 
 export type NotificationPayload = {
-  title: string;
-  message: string;
-  type: 'info' | 'warning' | 'error' | 'success';
-};
+  title: string
+  message: string
+  type: 'info' | 'warning' | 'error' | 'success'
+}
 ```
 
 ## Common Use Cases
@@ -179,40 +179,40 @@ export type NotificationPayload = {
 ### 1. Real-time Notifications
 
 ```typescript
-import { sendToUser } from './utils/webSocketCore/index.js';
+import { sendToUser } from './utils/webSocketCore/index.js'
 
 // In your business logic
 export async function notifyUser(userId: string, notification: unknown) {
   sendToUser(userId, {
     type: 'notification',
     payload: notification
-  });
+  })
 }
 ```
 
 ### 2. Broadcasting System Messages
 
 ```typescript
-import { broadcastMessage } from './utils/webSocketCore/index.js';
+import { broadcastMessage } from './utils/webSocketCore/index.js'
 
 // Broadcast to all connected clients
 export function broadcastSystemMessage(message: string) {
   broadcastMessage({
     type: 'system_message',
     payload: { message, timestamp: Date.now() }
-  });
+  })
 }
 ```
 
 ### 3. Real-time Chat
 
 ```typescript
-import { sendToUser, isUserConnected } from './utils/webSocketCore/index.js';
+import { sendToUser, isUserConnected } from './utils/webSocketCore/index.js'
 
 export async function sendChatMessage(fromUserId: string, toUserId: string, message: string) {
   if (!isUserConnected(toUserId)) {
     // Store message for later delivery
-    return { delivered: false, reason: 'User offline' };
+    return { delivered: false, reason: 'User offline' }
   }
 
   const sent = sendToUser(toUserId, {
@@ -222,9 +222,9 @@ export async function sendChatMessage(fromUserId: string, toUserId: string, mess
       message,
       timestamp: Date.now()
     }
-  });
+  })
 
-  return { delivered: sent };
+  return { delivered: sent }
 }
 ```
 

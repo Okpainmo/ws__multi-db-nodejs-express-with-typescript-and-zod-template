@@ -9,7 +9,7 @@ import { isSocketOpen } from './socketStatus.js';
 export function safeSendMessage(ws: WebSocket, message: WebSocketMessage): boolean {
   try {
     if (!isSocketOpen(ws)) {
-      log.warn(`Cannot send message - socket not open. State: ${ws.readyState}`);
+      log.warn({ level: 'warn', readyState: ws.readyState }, 'Cannot send message - socket not open');
       return false;
     }
 
@@ -21,7 +21,7 @@ export function safeSendMessage(ws: WebSocket, message: WebSocketMessage): boole
     ws.send(messageString);
     return true;
   } catch (error) {
-    log.error(`Error sending WebSocket message: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    log.error({ level: 'error', error: error instanceof Error ? error.message : 'Unknown error' }, 'Error sending WebSocket message');
     return false;
   }
 }
@@ -38,7 +38,7 @@ export function parseMessage(data: unknown): WebSocketMessage | null {
     }
     return null;
   } catch (error) {
-    log.error(`Error parsing WebSocket message: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    log.error({ level: 'error', error: error instanceof Error ? error.message : 'Unknown error' }, 'Error parsing WebSocket message');
     return null;
   }
 }

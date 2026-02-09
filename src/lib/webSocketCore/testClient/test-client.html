@@ -310,28 +310,28 @@
     </div>
 
     <script>
-      let ws = null;
-      let sentCount = 0;
-      let receivedCount = 0;
-      let errorCount = 0;
+      let ws = null
+      let sentCount = 0
+      let receivedCount = 0
+      let errorCount = 0
 
       function updateStats() {
-        document.getElementById('sentCount').textContent = sentCount;
-        document.getElementById('receivedCount').textContent = receivedCount;
-        document.getElementById('errorCount').textContent = errorCount;
+        document.getElementById('sentCount').textContent = sentCount
+        document.getElementById('receivedCount').textContent = receivedCount
+        document.getElementById('errorCount').textContent = errorCount
       }
 
       function addMessage(type, content, direction = 'received') {
-        const messageList = document.getElementById('messageList');
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `message ${direction}`;
+        const messageList = document.getElementById('messageList')
+        const messageDiv = document.createElement('div')
+        messageDiv.className = `message ${direction}`
 
-        const now = new Date();
-        const time = now.toLocaleTimeString();
+        const now = new Date()
+        const time = now.toLocaleTimeString()
 
-        let displayContent = content;
+        let displayContent = content
         if (typeof content === 'object') {
-          displayContent = JSON.stringify(content, null, 2);
+          displayContent = JSON.stringify(content, null, 2)
         }
 
         messageDiv.innerHTML = `
@@ -340,142 +340,142 @@
                     <span class="message-time">${time}</span>
                 </div>
                 <div class="message-content">${displayContent}</div>
-            `;
+            `
 
-        messageList.insertBefore(messageDiv, messageList.firstChild);
+        messageList.insertBefore(messageDiv, messageList.firstChild)
 
-        if (direction === 'received') receivedCount++;
-        else if (direction === 'sent') sentCount++;
-        else if (direction === 'error') errorCount++;
+        if (direction === 'received') receivedCount++
+        else if (direction === 'sent') sentCount++
+        else if (direction === 'error') errorCount++
 
-        updateStats();
+        updateStats()
       }
 
       function updateStatus(connected) {
-        const statusEl = document.getElementById('status');
-        const connectBtn = document.getElementById('connectBtn');
-        const disconnectBtn = document.getElementById('disconnectBtn');
-        const sendBtn = document.getElementById('sendBtn');
+        const statusEl = document.getElementById('status')
+        const connectBtn = document.getElementById('connectBtn')
+        const disconnectBtn = document.getElementById('disconnectBtn')
+        const sendBtn = document.getElementById('sendBtn')
 
         if (connected) {
-          statusEl.textContent = 'Connected';
-          statusEl.className = 'status connected';
-          connectBtn.disabled = true;
-          disconnectBtn.disabled = false;
-          sendBtn.disabled = false;
+          statusEl.textContent = 'Connected'
+          statusEl.className = 'status connected'
+          connectBtn.disabled = true
+          disconnectBtn.disabled = false
+          sendBtn.disabled = false
         } else {
-          statusEl.textContent = 'Disconnected';
-          statusEl.className = 'status disconnected';
-          connectBtn.disabled = false;
-          disconnectBtn.disabled = true;
-          sendBtn.disabled = true;
+          statusEl.textContent = 'Disconnected'
+          statusEl.className = 'status disconnected'
+          connectBtn.disabled = false
+          disconnectBtn.disabled = true
+          sendBtn.disabled = true
         }
       }
 
       function connect() {
-        const serverUrl = document.getElementById('serverUrl').value;
+        const serverUrl = document.getElementById('serverUrl').value
 
         try {
-          addMessage('System', `Connecting to ${serverUrl}...`, 'system');
+          addMessage('System', `Connecting to ${serverUrl}...`, 'system')
 
-          ws = new WebSocket(serverUrl);
+          ws = new WebSocket(serverUrl)
 
           ws.onopen = () => {
-            addMessage('System', 'Connected successfully!', 'system');
-            updateStatus(true);
-          };
+            addMessage('System', 'Connected successfully!', 'system')
+            updateStatus(true)
+          }
 
           ws.onmessage = (event) => {
             try {
-              const data = JSON.parse(event.data);
-              addMessage(data.type || 'Message', data, 'received');
+              const data = JSON.parse(event.data)
+              addMessage(data.type || 'Message', data, 'received')
             } catch (e) {
-              addMessage('Raw Message', event.data, 'received');
+              addMessage('Raw Message', event.data, 'received')
             }
-          };
+          }
 
           ws.onerror = (error) => {
-            addMessage('Error', 'WebSocket error occurred', 'error');
-            console.error('WebSocket error:', error);
-          };
+            addMessage('Error', 'WebSocket error occurred', 'error')
+            console.error('WebSocket error:', error)
+          }
 
           ws.onclose = (event) => {
-            addMessage('System', `Connection closed (Code: ${event.code}, Reason: ${event.reason || 'None'})`, 'system');
-            updateStatus(false);
-            ws = null;
-          };
+            addMessage('System', `Connection closed (Code: ${event.code}, Reason: ${event.reason || 'None'})`, 'system')
+            updateStatus(false)
+            ws = null
+          }
         } catch (error) {
-          addMessage('Error', `Connection failed: ${error.message}`, 'error');
-          updateStatus(false);
+          addMessage('Error', `Connection failed: ${error.message}`, 'error')
+          updateStatus(false)
         }
       }
 
       function disconnect() {
         if (ws) {
-          ws.close(1000, 'User disconnected');
-          addMessage('System', 'Disconnecting...', 'system');
+          ws.close(1000, 'User disconnected')
+          addMessage('System', 'Disconnecting...', 'system')
         }
       }
 
       function sendMessage() {
         if (!ws || ws.readyState !== WebSocket.OPEN) {
-          addMessage('Error', 'Not connected to server', 'error');
-          return;
+          addMessage('Error', 'Not connected to server', 'error')
+          return
         }
 
         try {
-          const messageType = document.getElementById('messageType').value;
-          const payloadText = document.getElementById('messagePayload').value;
+          const messageType = document.getElementById('messageType').value
+          const payloadText = document.getElementById('messagePayload').value
 
-          let payload;
+          let payload
           try {
-            payload = JSON.parse(payloadText);
+            payload = JSON.parse(payloadText)
           } catch (e) {
-            payload = payloadText;
+            payload = payloadText
           }
 
           const message = {
             type: messageType === 'custom' ? payload.type : messageType,
             payload: messageType === 'custom' ? payload.payload : payload,
             timestamp: Date.now()
-          };
+          }
 
-          ws.send(JSON.stringify(message));
-          addMessage(message.type, message, 'sent');
+          ws.send(JSON.stringify(message))
+          addMessage(message.type, message, 'sent')
         } catch (error) {
-          addMessage('Error', `Failed to send message: ${error.message}`, 'error');
+          addMessage('Error', `Failed to send message: ${error.message}`, 'error')
         }
       }
 
       function sendPing() {
         if (!ws || ws.readyState !== WebSocket.OPEN) {
-          addMessage('Error', 'Not connected to server', 'error');
-          return;
+          addMessage('Error', 'Not connected to server', 'error')
+          return
         }
 
         const message = {
           type: 'ping',
           timestamp: Date.now()
-        };
+        }
 
-        ws.send(JSON.stringify(message));
-        addMessage('ping', message, 'sent');
+        ws.send(JSON.stringify(message))
+        addMessage('ping', message, 'sent')
       }
 
       function clearMessages() {
-        document.getElementById('messageList').innerHTML = '';
-        sentCount = 0;
-        receivedCount = 0;
-        errorCount = 0;
-        updateStats();
+        document.getElementById('messageList').innerHTML = ''
+        sentCount = 0
+        receivedCount = 0
+        errorCount = 0
+        updateStats()
       }
 
       // Keyboard shortcuts
       document.getElementById('messagePayload').addEventListener('keydown', (e) => {
         if (e.ctrlKey && e.key === 'Enter') {
-          sendMessage();
+          sendMessage()
         }
-      });
+      })
 
       // Auto-connect on load (optional)
       // window.addEventListener('load', connect);

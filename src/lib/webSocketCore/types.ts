@@ -29,6 +29,7 @@ export type WebSocketMessage = {
 export type ExtendedWebSocket = WebSocket & {
   id: string;
   userId?: string;
+  requestId?: string;
   metadata?: Record<string, unknown>;
   isAlive?: boolean;
   lastActivity?: Date;

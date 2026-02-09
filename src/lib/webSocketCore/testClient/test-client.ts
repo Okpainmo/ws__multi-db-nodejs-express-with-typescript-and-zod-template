@@ -8,7 +8,7 @@
 import WebSocket from 'ws';
 
 const SERVER_URL = process.env.WS_URL || 'ws://localhost:5000/ws';
-const TEST_DURATION = 30000; // 30 seconds
+const TEST_DURATION = 90000; // 90 seconds
 
 type TestStats = {
   sent: number;

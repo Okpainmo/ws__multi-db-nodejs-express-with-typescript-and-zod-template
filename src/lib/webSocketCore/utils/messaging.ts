@@ -22,7 +22,7 @@ export function broadcastMessage(message: WebSocketMessage, excludeConnectionId?
     }
   });
 
-  log.info(`Broadcast complete - Success: ${successCount}, Failed: ${failureCount}`);
+  log.info({ level: 'info', successCount, failureCount }, 'Broadcast complete');
 }
 
 /**
@@ -32,7 +32,7 @@ export function sendToUser(userId: string, message: WebSocketMessage): boolean {
   const connectionIds = userConnections.get(userId);
 
   if (!connectionIds || connectionIds.size === 0) {
-    log.warn(`No active connections found for user: ${userId}`);
+    log.warn({ level: 'warn', userId }, 'No active connections found for user');
     return false;
   }
 
@@ -54,7 +54,7 @@ export function sendToConnection(connectionId: string, message: WebSocketMessage
   const ws = activeConnections.get(connectionId);
 
   if (!ws) {
-    log.warn(`Connection not found: ${connectionId}`);
+    log.warn({ level: 'warn', connectionId }, 'Connection not found');
     return false;
   }
 

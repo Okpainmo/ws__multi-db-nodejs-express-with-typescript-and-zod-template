@@ -11,6 +11,6 @@ export function safeCloseSocket(ws: WebSocket, code: number = 1000, reason: stri
       ws.close(code, reason);
     }
   } catch (error) {
-    log.error(`Error closing WebSocket: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    log.error({ level: 'error', error: error instanceof Error ? error.message : 'Unknown error' }, 'Error closing WebSocket');
   }
 }

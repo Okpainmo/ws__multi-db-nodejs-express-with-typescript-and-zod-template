@@ -21,7 +21,15 @@ export function registerConnection(ws: ExtendedWebSocket, userId?: string): void
     userConnections.get(userId)!.add(ws.id);
   }
 
-  log.info(`Connection registered - ID: ${ws.id}, UserID: ${userId || 'anonymous'}, Total: ${activeConnections.size}`);
+  log.info(
+    {
+      level: 'info',
+      connectionId: ws.id,
+      userId: userId || 'anonymous',
+      totalConnections: activeConnections.size
+    },
+    'Connection registered'
+  );
 }
 
 /**
@@ -48,7 +56,7 @@ export function unregisterConnection(connectionId: string): void {
   // Remove from active connections
   activeConnections.delete(connectionId);
 
-  log.info(`Connection unregistered - ID: ${connectionId}, Total: ${activeConnections.size}`);
+  log.info({ level: 'info', connectionId, totalConnections: activeConnections.size }, 'Connection unregistered');
 }
 
 /**
