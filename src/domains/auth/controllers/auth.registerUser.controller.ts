@@ -14,7 +14,7 @@ import { errorHandler__400, errorHandler__500 } from '../../../utils/errorHandle
 import { hashingHandler } from '../../../utils/hashingHandler.js';
 import { deployAuthCookie } from '../../../utils/cookieDeployHandlers.js';
 import { generateTokens } from '../../../utils/generateTokens.js';
-// import log from '../../../utils/logger.js';
+import log from '../../../utils/logger.js';
 
 type UserProfileResponse = Pick<
   UserSpecs,
@@ -45,12 +45,13 @@ type AuthTokenSpecs = {
 
 export const registerUser = async (req: Request<{}, ResponseSpecs, inSpecs>, res: Response<ResponseSpecs>) => {
   try {
+    log.info(req.body);
     const existingUser = await findUser({ email: req.body.email });
 
     const hashedPassword = await hashingHandler({ stringToHash: req.body.password });
 
     if (existingUser) {
-      errorHandler__400(`User with email: '${req.body.email}' already exists`, res);
+      errorHandler__400({ errorMessage: 'user already exists', context: { email: req.body.email, userId: existingUser.id } }, res);
 
       return;
     }
@@ -78,6 +79,8 @@ export const registerUser = async (req: Request<{}, ResponseSpecs, inSpecs>, res
         });
 
         deployAuthCookie({ authCookie: authCookie }, res);
+
+        log.info({ level: 'info', userId: registeredUser.id, email: registeredUser.email }, 'User registered successfully');
 
         res.status(201).json({
           responseMessage: 'User registered successfully',

@@ -12,7 +12,7 @@ The access and session - auth middleware are not needed for the sign-up and regi
 This is because these routes are the ones that start/create sessions. Adding those auth middlewares here, do 
 not make any sense, since by the time these requests are being made, there will be no request in session.
 
-Only the data validation is necessary.
+Only data validation is necessary.
 */
 router.post('/register', validateData({ body: authSchema__register }), registerUser);
 router.post('/log-in', validateData({ body: authSchema__logIn }), LogIn);

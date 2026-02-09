@@ -10,11 +10,14 @@ import type { UserSpecs } from '../../user/schema/user.schema.js';
  */
 export async function createUser(data: { user: UserSpecs }) {
   try {
-    if (dbConfig.type === 'mongodb') {
+    const dbType = dbConfig.domains.auth;
+    let createdUser: any = null;
+
+    if (dbType === 'mongodb') {
       const { name, email, password } = data.user;
       const newUser: UserSpecs = await userModel.create({ name, email, password });
 
-      return {
+      createdUser = {
         id: newUser._id,
         name: newUser.name,
         email: newUser.email,
@@ -25,7 +28,7 @@ export async function createUser(data: { user: UserSpecs }) {
       };
     }
 
-    if (dbConfig.type === 'postgresql') {
+    if (dbType === 'postgresql') {
       const user = await prisma.user.create({
         data: {
           name: data.user.name as string,
@@ -43,10 +46,10 @@ export async function createUser(data: { user: UserSpecs }) {
         }
       });
 
-      return user;
+      createdUser = user;
     }
 
-    return null;
+    return createdUser;
   } catch (error) {
     customServiceErrorHandler(error);
     return;
