@@ -11,7 +11,7 @@ import { findUser } from '../../user/lib/user.findUser.service.js';
 import { updateUser } from '../../user/lib/user.updateUser.service.js';
 import { errorHandler__404, errorHandler__500, errorHandler__403, errorHandler__400 } from '../../../utils/errorHandlers/codedErrorHandlers.js';
 import type { UserSpecs } from '../../user/schema/user.schema.js';
-// import log from '../../../utils/logger.js';
+import log from '../../../utils/logger.js';
 
 type UserProfileResponse = Pick<
   UserSpecs,
@@ -37,25 +37,27 @@ export const deactivateUser = async (req: Request<{ userId?: string | number }, 
 
     const userToDeactivate = await findUser({ userId });
 
+    if (adminUser && !adminUser.isAdmin) {
+      errorHandler__403({ errorMessage: 'unauthorized attempt on admin action: user is not an admin', context: { userId: adminUser?.id } }, res);
+
+      return;
+    }
+
     if (!userToDeactivate) {
-      errorHandler__404(`User with id: '${userId}' not found or does not exist`, res);
+      errorHandler__404({ errorMessage: 'user not found or does not exist', context: { userId } }, res);
 
       return;
     }
 
     if (userToDeactivate.isActive == false) {
-      return errorHandler__400(`user with id: '${userId}' has already been de-activated`, res);
-    }
-
-    if (adminUser && !adminUser.isAdmin) {
-      errorHandler__403('You are not allowed to perform this action', res);
-
-      return;
+      return errorHandler__400({ errorMessage: 'user has already been deactivated', context: { userId } }, res);
     }
 
     const deactivatedUser = await updateUser({ userId, requestBody: { isActive: false } });
 
     if (deactivatedUser && req?.userData?.newUserAccessToken && req?.userData?.newUserRefreshToken) {
+      log.info({ level: 'info', adminId: adminUser?.id, deactivatedUserId: deactivatedUser.id }, 'User deactivated successfully');
+
       res.status(200).json({
         responseMessage: 'User deactivated successfully.',
         response: {
