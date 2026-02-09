@@ -5,6 +5,7 @@ import { ObjectId } from 'mongodb';
 import * as z from 'zod';
 import log from '../../../utils/logger.js';
 import { getUserProfile } from '../controllers/user.getUserProfile.controller.js';
+import { getAllUsers } from '../controllers/user.getAllUserProfiles.controller.js';
 import sessionsMiddleware from '../../../middlewares/auth.sessions.middleware.js';
 import accessMiddleware from '../../../middlewares/auth.access.middleware.js';
 
@@ -73,5 +74,6 @@ const router = express.Router();
 
 // routes
 router.route('/:userId').get(validateData({ params: combinedParamsSchema }), sessionsMiddleware, accessMiddleware, getUserProfile);
+router.route('/').get(sessionsMiddleware, accessMiddleware, getAllUsers);
 
 export default router;

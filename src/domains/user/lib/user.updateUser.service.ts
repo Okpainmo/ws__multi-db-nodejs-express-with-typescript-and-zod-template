@@ -10,18 +10,20 @@ import type { UserSpecs } from '../schema/user.schema.js';
  */
 export async function updateUser({ userId, email, requestBody }: { userId?: any; email?: string; requestBody: UserSpecs }) {
   try {
-    if (dbConfig.type === 'mongodb') {
+    const dbType = dbConfig.domains.user;
+    let updatedUser: any = null;
+
+    if (dbType === 'mongodb') {
       const query = email ? { email } : { _id: userId };
       const user = await userModel.findOneAndUpdate(query, { $set: requestBody }, { new: true, select: '-password' });
 
       if (user) {
         user.id = user._id; // ensure uniform use of 'id'
-        return user;
+        updatedUser = user;
       }
-      return;
     }
 
-    if (dbConfig.type === 'postgresql') {
+    if (dbType === 'postgresql') {
       const where = email ? { email } : { id: userId ? Number(userId) : undefined };
       if (!where.email && !where.id) return null;
 
@@ -49,10 +51,10 @@ export async function updateUser({ userId, email, requestBody }: { userId?: any;
         }
       });
 
-      return user;
+      updatedUser = user;
     }
 
-    return null;
+    return updatedUser;
   } catch (error) {
     customServiceErrorHandler(error);
     return;
