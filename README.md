@@ -1,20 +1,20 @@
 # ws\_\_multi-db-nodejs-express-with-typescript-and-zod-template
 
-This template, is dedicated web-socket version of the [multi-db-nodejs-express-with-typescript-and-zod-template](https://github.com/Okpainmo/multi-db-nodejs-express-with-typescript-and-zod-template) - a highly flexible, function-based, domain-driven-development(DDD)-inspired NodeJs/Express(with Typescript) template.
+This template, is a dedicated web-socket version of the [multi-db-nodejs-express-with-typescript-and-zod-template](https://github.com/Okpainmo/multi-db-nodejs-express-with-typescript-and-zod-template) - a highly flexible, function-based, domain-driven-development(DDD)-inspired NodeJs/Express(with Typescript) template.
 
-> **Before you generate a project with the template, endeavour to check step No. 3 in the [How To Use This Template](https://github.com/Okpainmo/multi-db-nodejs-express-with-typescript-and-zod-template?tab=readme-ov-file#how-to-use-this-template) section of this README file, and learn how to properly handle git-ignoring the environmental variables.**
+> **Before you generate a project with the template, endeavour to check the ["How To Use This Template"](https://github.com/Okpainmo/ws__multi-db-nodejs-express-with-typescript-and-zod-template?tab=readme-ov-file#how-to-use-this-template) section of this README file(especially the step No. 3 - so you can learn how to effectively untrack the environmental variables before cloning your newly bootstrapped project).**
 
 > **The [Debugging](https://github.com/Okpainmo/multi-db-nodejs-express-with-typescript-and-zod-template?tab=readme-ov-file#debugging) section will also be helpful in case you run into some tricky errors.**
 
 ## Features.
 
-> In a way, it honestly feels like a crime to me, for anyone to still go about building systems with vanilla Javascript. This template is **fully typed 💪**.
+> In a way, it honestly feels like a crime to me, for anyone to still go about building systems with vanilla Javascript. This template is **fully typed 💪**. Furthermore, is serves perfectly as a **great option for anyone who already understands Express, and do not intend to switch to a new framework like NestJS**.
 
 - It is set up to utilize a centralized, Zod-validated configuration system that supports multiple database types (MongoDB and PostgreSQL) and multiple working environments.
 
 - To provide usage guidance, the template contains build samples/demonstrations of how to use both databases.
 
-- Inside, you'll find beautiful and professionally crafted implementations that reveal how to practically build and ship top-class Node/Express APIs that are fully typed.
+- Inside, you'll find professionally crafted implementations that show how to practically build and ship top-class Node/Express APIs that are fully typed.
 
 - To ensure proper separation of concerns, MongoDB will use Mongoose as ODM, while PostgreSQL will use Prisma as ORM.
 
@@ -22,21 +22,23 @@ This template, is dedicated web-socket version of the [multi-db-nodejs-express-w
 
 - It also comes with a standard WebSocket implementation(using the `ws` NodeJs library), to enable real-time communication between the client and the server.
 
-I created this with so much love(❤️) for myself, and engineering teams I lead/work on. Enough of bootstrapping a project from scratch whenever I need to set up one.
+> **I created this with so much love(❤️) for myself, and engineering teams I lead/work on.**
+>
+> Feel free to bet you life on it.
 
 Below is a more detailed list of the core features of this template.
 
-1. **Agnostic Single-File Service Layer**: Experience the "One Process, One File" pattern where core database operations (find, create, update) for both MongoDB and PostgreSQL are consolidated into single, high-performance service files. No more messy file management—simply toggle your DB preference and the internal logic switches seamlessly.
+1. **Domain-Driven Database Selection**: A highly flexible architecture where each domain (E.g. Admin, Auth, User) can be assigned a dedicated database (MongoDB or PostgreSQL). This allows for complex hybrid-data scenarios while maintaining clean, separated service logic.
 
-2. **Modular & Scalable Configuration**: A centralized, Zod-powered configuration system that validates your entire environment on startup. It is split into specialized modules (`db`, `jwt`, `server`, `ws`) for maximum separation of concerns and maintainability.
+2. **Modular & Scalable Configuration**: A centralized, Zod-powered configuration system that validates your entire environment on startup. Configuration is split into specialized modules (`db`, `jwt`, `server`, `ws`) and includes domain-specific database mappings.
 
 3. **High-Security Auth Middleware**: A robust, dual-layered security architecture that separates Access and Session management. Includes pre-configured JWT handling and high-security HTTP-only cookie deployment for production-grade authentication.
 
-4. **True Multi-DB Flexibility**: Native support for MongoDB (Mongoose) and PostgreSQL (Prisma). Switch your entire project's data layer with a single `DATABASE_TYPE` change in your environment file.
+4. **True Multi-DB Flexibility**: Native support for MongoDB (Mongoose) and PostgreSQL (Prisma). Switch or combine your project's data layers with a single `DATABASE_TYPE` change in your environment file, and fine-tune database usage per domain.
 
-5. **Integrated WebSocket Core**: A professional WebSocket server implementation (using `ws`) included out of the box. Features built-in heartbeats, auto-cleanup, and graceful shutdown to ensure real-time stability.
+5. **Integrated WebSocket Core**: A professional WebSocket server implementation (using `ws`) included out of the box. Features built-in include: heartbeats, auto-cleanup, and graceful shutdown to ensure real-time stability and a lot more.
 
-6. **Domain-Driven Design (DDD)**: A clean, modular architecture inspired by DDD. Business logic is strictly separated from API routing and controllers, making the codebase a joy to navigate and scale.
+6. **Domain-Driven Design (DDD)**: A clean, modular architecture inspired by DDD. All database-related business logic are strictly separated from API routing and controllers, making the codebase a joy to tweak, navigate, and scale - as might be necessary in the future.
 
 7. **Multi-Environment Harmony**: Seamless support for `development`, `staging`, and `production`. Test complex environment-specific configurations locally with ease using isolated `.env` stacks.
 
@@ -57,7 +59,9 @@ With these default domains, you'll get to see how sample end-points are neatly a
 
 ### One Process, One File
 
-The template utilizes a "One Process, One File" pattern for database operations (e.g., `user.findUser.service.ts`). Each service file handles the internal logic for both MongoDB and PostgreSQL, automatically selecting the correct implementation based on your `DATABASE_TYPE` setting. This results in you having the absolute flexibility to switch databases while keeping your controllers and core business logic completely unaffected.
+The template utilizes a "One Process, One File" pattern for database operations (e.g., `user.findUser.service.ts`). Each service file handles the internal logic for both MongoDB and PostgreSQL, automatically selecting the correct implementation based on your domain-specific database type settings/selections.
+
+This ensures that business logic remains decoupled from the specific database engine used by each domain.
 
 ## Working Environment Support.
 
@@ -67,7 +71,7 @@ The template utilizes a "One Process, One File" pattern for database operations 
 
 ### Environment Variables
 
-> The project has 4(four) environmental variable files(which are all intentionally un-ignored), to help you easily understand how the template's environmental variables setup works. **Endeavour to git-ignore them immediately you start a project**.
+> The project has 4(four) environmental variable files(which are all intentionally un-ignored), to help you easily understand how the template's environmental variables setup works. **Endeavour to git-ignore them immediately you start/bootstrap a new project**.
 >
 > 1. `.env` - the CORE/CENTRAL environment variable file that helps with selecting your preferred working environment.
 > 2. `.env.development` - environmental variables file for the dev/development environment.
@@ -76,7 +80,7 @@ The template utilizes a "One Process, One File" pattern for database operations 
 
 > Switching to a different environment is easy: **simply head to the CORE environment file(`.env`), and select your preferred environment by uncommenting it and commenting the others**.
 >
-> The project uses a dedicated config loader (`src/config/env.ts`) that automatically detects this change and loads the corresponding `.env.{environment}` file.
+> The project uses a dedicated config loader (`src/config/utils/envInit.ts`) that automatically detects this change and loads the corresponding `.env.{environment}` file.
 
 I.e.
 
@@ -105,16 +109,29 @@ NODE_ENV="development"
 # ...code after
 ```
 
-### Switching Between Database Types.
+### Selecting Database Types.
 
-> To switch your preferred database, go to your active environment file (e.g., `.env.development`) and update the `DATABASE_TYPE` variable:
->
-> ```bash
-> # Options: "mongodb", "postgresql"
-> DATABASE_TYPE=mongodb
-> ```
->
-> The server will automatically connect to the selected database and use the appropriate service logic across all domains.
+#### 1. Project-Wide Connections
+
+To select which databases the app should establish connections to during startup, update the `DATABASE_TYPE` variable in your active `.env` file:
+
+```bash
+# Options: "mongodb", "postgresql", or "mongodb, postgresql"
+DATABASE_TYPE="mongodb, postgresql"
+```
+
+#### 2. Domain-Specific Assignment
+
+Assign a specific database engine to each domain. This dictates which database the domain's services will use for all operations:
+
+```bash
+# Options: "mongodb" | "postgresql"
+DATABASE_TYPE_ADMIN=postgresql
+DATABASE_TYPE_AUTH=mongodb
+DATABASE_TYPE_USER=mongodb
+```
+
+The system will automatically use the correct logic for each domain based on these mappings.
 
 ## How To Use This Template.
 
@@ -122,9 +139,9 @@ NODE_ENV="development"
 
 2. Create/Bootstrap a project repository(using this as a template).
 
-3. Before you clone: while still on Github(from your github interface), copy out and carefully save the contents of all the respective environmental variables files(`.env`, `.env.development`, `.env.staging`, and `.env.production`), then delete all of them - still using the github interface.
+3. Before you clone - while still on Github(from your github interface), copy out and carefully save the contents of all the respective environmental variables files(`.env`, `.env.development`, `.env.staging`, and `.env.production`), then delete all of them - still using the github interface.
 
-> **This step is necessary, to untrack all the(intentionally added) environmental variables files, and enable you re-create and have them ignored with Git, after you clone your newly created/bootstrapped project**.
+> **This step is necessary, to help untrack all the(intentionally added) environmental variables files, and enable you re-create and have them ignored with Git, after you clone your newly bootstrapped project**.
 
 4. Now clone your project, and settle in to start working
 
@@ -134,7 +151,7 @@ git clone your-project-url
 cd your-project-name
 ```
 
-5. Re-create all the environmental variables files earlier deleted - this time, you're sure not to have any issues with Git ignoring them, since they are no longer being tracked.
+5. Re-create all the environmental variables files earlier deleted - this time, you're sure not to have any issues with git-ignoring them, since they are no longer being tracked.
 
 6. Proceed to install all dependencies and dev-dependencies.
 
@@ -238,17 +255,17 @@ CONNECT YOUR DATABASES TO A POSTGRESQL GUI SOFTWARE/SERVICE - E.G PGADMIN(OR A S
 npm run dev
 ```
 
-If successfully connected, you will see a response like the one below inside your terminal.
+If successfully connected, depending on your database type(s) configuration, you will see a response similar to the one below - inside your terminal.
 
 ```bash
-[07:59:58.000] INFO: Establishing database connection(s)
-[07:59:58.000] INFO: ...................................
+[06:23:32.000] INFO: Establishing database connection(s)
+[06:23:32.000] INFO: ...................................
 Connected to: localhost
 Environment: development
 
 MongoDB connected successfully
 ........................................................
-[07:59:59.000] INFO: ...................................
+[06:23:32.000] INFO: ...................................
 WebSocket server is listening on port 5000
 WebSocket: ws://localhost:5000/ws
 
@@ -257,7 +274,6 @@ HTTP: http://localhost:5000
 
 Environment: development
 ........................................................
-
 ```
 
 Your API server should start up and be accessible via port 5000 - `http://localhost:5000`. On visiting it, a Pretty-print response like the one below indicates that you're started and all good to go.
@@ -275,12 +291,18 @@ Your API server should start up and be accessible via port 5000 - `http://localh
 
 ## Prisma-specific Guides.
 
-Normally, Prisma interacts directly(by default) with a `.env` file that should be on the project root, hence would not know if to use a different(custom) environment variables file - as it actually should for this template. Since this template maintains a decentralized environmental variables file structure, the `dotenv-cli` package(a package that should already be installed at the project dependencies-installation stage if you followed the instructions properly), is used to specify which environmental variables file to use against prisma commands.
+Normally, Prisma interacts directly(by default) with a `.env` file that should be on the project root, hence would not know if to use a different(custom) environment variables file - as it actually should for this template. Since this template maintains a decentralized environmental variables file structure, the `dotenv-cli` package(a package that should already be installed at the project dependencies-installation stage - if you followed the instructions properly), is used to specify which environmental variables file to use against prisma commands.
 
 Below is a sample command for running a migration against the PostgreSQL database in Prisma dev mode.
 
 ```bash
 npx dotenv -e .env.development -- npx prisma migrate dev --name migration-name
+```
+
+E.g.
+
+```bash
+npx dotenv -e .env.development -- npx prisma migrate dev --name init
 ```
 
 And this for regenerating the Prisma client.
@@ -291,8 +313,7 @@ npx dotenv -e .env.development -- npx prisma generate
 
 ## Transpiling From Typescript To Javasctipt.
 
-The project as stated earlier, is typescript-core. To build(transpile) your project into raw Javascript(with the same exact structure as the TS verison) - for deployment or for any other necessary purpose,
-simply use the build command below.
+The project as stated earlier, is typescript-heavy. To build(transpile) your project into raw Javascript(with the same exact structure as the TS version) - for deployment or for any other necessary purpose, simply use the build command below.
 
 ```bash
 npm run build
@@ -316,7 +337,7 @@ docker build -t multi_db_nodejs_express_with_typescript_template__docker .
 
 > A great way to run the project, would be to set-up a docker-compose configuration that builds the app/server, and starts up the database(s) - all with one single command. This will provide much ease for team-mates(especially seniors and leads) who only wish to assess/test the development progress - and not to contribute.
 
-**SEE `docker-compose.mongo.template.yaml` and `docker-compose.postgres.template.yaml` FOR HELP.**
+**SEE `docker-compose.mongo.template.yaml` AND `docker-compose.postgres.template.yaml` FOR HELP.**
 
 ```bash
 docker compose up -d
@@ -367,8 +388,7 @@ docker run -d \
 
 ## Enforcing Coding(Contribution) Standards/Rules.
 
-This template is built to support the best industry standards available. Hence enforcing code quality
-was a core focus.
+This template is built to support the best industry standards available. Hence enforcing code quality was a core focus.
 
 1. For linting, **ESlint** is used. See `eslint.config.mjs` for all the ESlint configurations.
 
@@ -390,7 +410,8 @@ npx prettier . --write
 
 To solve that issue and more, **Lint-staged**, **Commitlint**, and **Husky** were used.
 
-Lint-staged with the help of Husky, enforces automatic Prettier formatting and ESlint linting respectively - **on staged files**. While Commitlint(also using Husky), helps to enforce rules on commit messages - Making sure that collaborating team members write proper commits.
+Lint-staged with the help of Husky, enforces automatic [Prettier](https://prettier.io/) formatting and [ESlint](https://eslint.org/) linting - **on all staged files**.
+On the other hand, [Commitlint](https://commitlint.js.org/) (also using Husky), helps to enforce rules on commit messages - Making sure that collaborating team members write proper commits.
 
 To run Lint-staged manually on currently staged files, use the command below:
 
@@ -398,7 +419,7 @@ To run Lint-staged manually on currently staged files, use the command below:
 npx lint-staged
 ```
 
-> P.S: You do not need to run the `lint-staged` command manually. If you follow all instructions, and set up the template correctly, a pre-commit task would be automatically triggered - whenever you try to make any code commit to Github, thereby - linting and formatting your code automatically, while also ensuring commit standards.
+> P.S: You do not need to run the `lint-staged` command manually. If you follow all instructions, and set up the template correctly, a pre-commit task would be automatically triggered whenever you try to make any code commit to Github. This would, in turn, lint and format your code automatically, while also ensuring commit standards.
 >
 > All Lint-staged configurations can be found inside the `.lintstagedrc.json` file.
 
@@ -425,6 +446,7 @@ Below are the default domains and their sample end-point, which you can build on
 
 - Endpoints:
   1. Get user profile - `/api/v1/user/:userId`
+  2. Get all user profiles - `/api/v1/user`
 
 ## Debugging.
 
@@ -451,6 +473,6 @@ To contribute successfully, simply create a Github issues that mentions me, and 
 
 ## Wrapping up.
 
-> Just in case this repository ever gets to save your butt at work or while learning to build production-grade Node/Express with Typescript APIs, and you wish to send an appreciation, [feel free to buy me a 'coffee'](https://paystack.com/pay/cagnddqmr2).
+> Just in case this repository ever gets to save your butt at work or while learning to build typescript-heavy production-grade Node/Express APIs, and you wish to send an appreciation, [feel free to buy me a 'cup of coffee'](https://paystack.com/pay/cagnddqmr2).
 
 Cheers!!!
