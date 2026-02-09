@@ -178,7 +178,7 @@ export function createWebSocketServer(
         timestamp: Date.now()
       }
     });
-  };);
+  });
 
   return wss;
 }
