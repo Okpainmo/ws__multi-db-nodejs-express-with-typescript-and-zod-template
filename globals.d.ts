@@ -10,5 +10,6 @@ declare module 'express' {
       newUserAccessToken?: string;
       newUserRefreshToken?: string;
     };
+    requestId?: string;
   }
 }
