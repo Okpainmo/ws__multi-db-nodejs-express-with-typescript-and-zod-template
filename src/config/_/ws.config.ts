@@ -1,4 +1,4 @@
-import validatedEnv from './base.js';
+import validatedEnv from '../utils/base.js';
 
 export const wsConfig = {
   path: validatedEnv.WS_PATH,

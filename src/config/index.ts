@@ -1,9 +1,9 @@
-import validatedEnv from './base.js';
+import validatedEnv from './utils/base.js';
 
-export * from './server.config.js';
-export * from './db.config.js';
-export * from './jwt.config.js';
-export * from './ws.config.js';
+export * from './_/server.config.js';
+export * from './_/db.config.js';
+export * from './_/jwt.config.js';
+export * from './_/ws.config.js';
 
 export const config = validatedEnv;
 export default validatedEnv;

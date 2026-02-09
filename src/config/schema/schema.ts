@@ -5,7 +5,16 @@ export const envSchema = z.object({
   PORT: z.coerce.number().default(5000),
 
   // Database Preference
-  DATABASE_TYPE: z.enum(['mongodb', 'postgresql']).default('mongodb'),
+  DATABASE_TYPE: z
+    .string()
+    .default('mongodb')
+    .transform((val) => val.split(',').map((s) => s.trim().toLowerCase())),
+
+  // Domain Database Preferences
+  DATABASE_TYPE_ADMIN: z.enum(['mongodb', 'postgresql']).default('postgresql'),
+  DATABASE_TYPE_AUTH: z.enum(['mongodb', 'postgresql']).default('mongodb'),
+  DATABASE_TYPE_USER: z.enum(['mongodb', 'postgresql']).default('mongodb'),
+  DATABASE_TYPE_LOGS: z.enum(['mongodb', 'postgresql']).default('mongodb'),
 
   // MongoDB
   MONGO_DATABASE_NAME: z.string().optional(),
@@ -26,7 +35,10 @@ export const envSchema = z.object({
   // WebSockets
   WS_PATH: z.string().startsWith('/').default('/ws'),
   WS_HEARTBEAT_INTERVAL: z.coerce.number().default(30000),
-  WS_SHUTDOWN_TIMEOUT: z.coerce.number().default(10000)
+  WS_SHUTDOWN_TIMEOUT: z.coerce.number().default(10000),
+
+  // Service Details
+  SERVICE_NAME: z.string().optional()
 });
 
 export type EnvConfig = z.infer<typeof envSchema>;

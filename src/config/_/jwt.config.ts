@@ -1,4 +1,4 @@
-import validatedEnv from './base.js';
+import validatedEnv from '../utils/base.js';
 
 export const jwtConfig = {
   secret: validatedEnv.JWT_SECRET,

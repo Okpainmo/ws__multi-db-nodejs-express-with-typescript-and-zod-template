@@ -1,6 +1,6 @@
-import './env.js';
-import { envSchema } from './schema.js';
-import log from '../utils/logger.js';
+import './envInit.js';
+import { envSchema } from '../schema/schema.js';
+import log from '../../utils/logger.js';
 
 /**
  * Validate and parse environment variables
