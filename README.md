@@ -2,15 +2,17 @@
 
 This template, is a dedicated web-socket version of the [multi-db-nodejs-express-with-typescript-and-zod-template](https://github.com/Okpainmo/multi-db-nodejs-express-with-typescript-and-zod-template) - a highly flexible, function-based, domain-driven-development(DDD)-inspired NodeJs/Express(with Typescript) template.
 
-> **Before you generate a project with the template, endeavour to check the ["How To Use This Template"](https://github.com/Okpainmo/ws__multi-db-nodejs-express-with-typescript-and-zod-template?tab=readme-ov-file#how-to-use-this-template) section of this README file(especially the step No. 3 - so you can learn how to effectively untrack the environmental variables before cloning your newly bootstrapped project).**
+> **Before you generate a project with the template, endeavour to check the ["How To Use This Template"](https://github.com/Okpainmo/ws__multi-db-nodejs-express-with-typescript-and-zod-template?tab=readme-ov-file#how-to-use-this-template) section of this README file**.
 
 > **The [Debugging](https://github.com/Okpainmo/multi-db-nodejs-express-with-typescript-and-zod-template?tab=readme-ov-file#debugging) section will also be helpful in case you run into some tricky errors.**
 
 ## Features.
 
-> In a way, it honestly feels like a crime to me, for anyone to still go about building systems with vanilla Javascript. This template is **fully typed 💪**. Furthermore, is serves perfectly as a **great option for anyone who already understands Express, and do not intend to switch to a new framework like NestJS**.
+> In a way, it honestly feels like a crime to me, for anyone to still go about building systems with plain-ole vanilla Javascript. This template is **fully typed 💪**.
+>
+> Furthermore, is serves perfectly as a **great option for anyone who already understands Express, and do not intend to switch to a new NodeJs framework like NestJS**.
 
-- It is set up to utilize a centralized, Zod-validated configuration system that supports multiple database types (MongoDB and PostgreSQL) and multiple working environments.
+- The template is set up to utilize a centralized, Zod-validated configuration system that supports multiple database types (MongoDB and PostgreSQL) and multiple working environments.
 
 - To provide usage guidance, the template contains build samples/demonstrations of how to use both databases.
 
@@ -71,7 +73,7 @@ This ensures that business logic remains decoupled from the specific database en
 
 ### Environment Variables
 
-> The project has 4(four) environmental variable files(which are all intentionally un-ignored), to help you easily understand how the template's environmental variables setup works. **Endeavour to git-ignore them immediately you start/bootstrap a new project**.
+> The project has 4(four) environmental variable files - with each currently created as samples. **Ensure to remove the `.sample` suffixes/extensions immediately you clone your newly bootstrapped project.**
 >
 > 1. `.env` - the CORE/CENTRAL environment variable file that helps with selecting your preferred working environment.
 > 2. `.env.development` - environmental variables file for the dev/development environment.
@@ -139,11 +141,7 @@ The system will automatically use the correct logic for each domain based on the
 
 2. Create/Bootstrap a project repository(using this as a template).
 
-3. Before you clone - while still on Github(from your github interface), copy out and carefully save the contents of all the respective environmental variables files(`.env`, `.env.development`, `.env.staging`, and `.env.production`), then delete all of them - still using the github interface.
-
-> **This step is necessary, to help untrack all the(intentionally added) environmental variables files, and enable you re-create and have them ignored with Git, after you clone your newly bootstrapped project**.
-
-4. Now clone your project, and settle in to start working
+3. Now clone your project, and settle in to start .
 
 ```bash
 git clone your-project-url
@@ -151,9 +149,9 @@ git clone your-project-url
 cd your-project-name
 ```
 
-5. Re-create all the environmental variables files earlier deleted - this time, you're sure not to have any issues with git-ignoring them, since they are no longer being tracked.
+4. Remove the `.sample` suffixes/extensions from all the environmental variables files in your newly clone project.
 
-6. Proceed to install all dependencies and dev-dependencies.
+5. Proceed to install all dependencies and dev-dependencies.
 
 **with current project versions**:
 
@@ -171,7 +169,7 @@ npm install axios bcryptjs cookie-parser cors dayjs dotenv express mongoose node
 npm install @types/cookie-parser @types/cors @types/express @types/node @types/nodemailer @typescript-eslint/parser prisma eslint eslint-config-prettier eslint-plugin-prettier lint-staged pino-pretty prettier ts-node tsx typescript dotenv-cli @typescript-eslint/eslint-plugin @eslint/js husky @commitlint/cli @commitlint/config-conventional @types/bcrypt @types/jsonwebtoken @types/ws @types/pg --save-dev
 ```
 
-7. Pull in the mongodb and postgresql docker images
+6. Pull in the mongodb and postgresql docker images
 
 ```bash
 docker pull mongodb/mongodb-community-server # mongodb
@@ -181,7 +179,7 @@ docker pull mongodb/mongodb-community-server # mongodb
 docker pull postgres # postgres
 ```
 
-8. Setup and start the databases.
+7. Setup and start the databases.
 
 **Option 1a: start them individually(PostgreSQL)**.
 
@@ -249,7 +247,7 @@ docker compose up -d
 
 CONNECT YOUR DATABASES TO A POSTGRESQL GUI SOFTWARE/SERVICE - E.G PGADMIN(OR A SIMILAR, E.G MONGODB COMPASS - FOR MONGODB), TO VIEW THEM.
 
-9. Start your main app/API server.
+8. Start your main app/API server.
 
 ```bash
 npm run dev
@@ -287,7 +285,7 @@ Your API server should start up and be accessible via port 5000 - `http://localh
 }
 ```
 
-10. Take a deep breath, reward yourself with a coffee break, and return to hack on.
+9. Take a deep breath, reward yourself with a coffee break, and return to hack on.
 
 ## Prisma-specific Guides.
 
