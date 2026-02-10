@@ -18,13 +18,23 @@ export const envSchema = z.object({
 
   // MongoDB
   MONGO_DATABASE_NAME: z.string().optional(),
-  MONGO_DB_URI: z.string().url().optional(),
+  // MONGO_DB_URI: z.string().url().optional(),
+  /* Setting explicitly as URL, will cause a validation error - preventing a different selected db from being used. E.g. 
+  if only postgres is to be used, the environment initialization in the project config will fail since the mongodb string 
+  in the environmental variables file is not a valid url - which in that case is not needed. Setting it to be a string 
+  or optional, permits a value that may not necessarily be a url, thereby allowing the system to work with only the selected db. */
+  MONGO_DB_URI: z.string().optional(),
 
   // PostgreSQL
   POSTGRES_USER: z.string().optional(),
   POSTGRES_PASSWORD: z.string().optional(),
   POSTGRES_DATABASE_NAME: z.string().optional(),
-  POSTGRES_DATABASE_URL: z.string().url().optional(),
+  // POSTGRES_DATABASE_URL: z.string().url().optional(),
+  /* Setting explicitly as URL, will cause a validation error - preventing a different selected db from being used. E.g. 
+  if only mongodb is to be used, the environment initialization in the project config will fail since the postgresql string 
+  in the environmental variables file is not a valid url - which in that case is not needed. Setting it to be a string 
+  or optional, permits a value that may not necessarily be a url, thereby allowing the system to work with only the selected db. */
+  POSTGRES_DATABASE_URL: z.string().optional(),
 
   // JWT
   JWT_SECRET: z.string().min(8),
