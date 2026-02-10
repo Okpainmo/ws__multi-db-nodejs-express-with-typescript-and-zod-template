@@ -4,10 +4,9 @@
   "description": "A fully-typed backend(NodeJs) project server template",
   "type": "module",
   "scripts": {
-    "start": "bun prisma generate && node app.js",
-    "start-build": "node ./build/app.js",
+    "start": "node ./build/src/app.js",
     "dev": "tsc --noEmit && tsx watch ./src/app.ts",
-    "build": "tsc",
+    "build": "tsc -p tsconfig.build.json",
     "lint": "bun eslint .",
     "lint-staged": "bun lint-staged",
     "format": "bun prettier . --write",
